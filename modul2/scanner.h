@@ -52,4 +52,22 @@ typedef struct _token{
 #define INTERVAL	17	/* .. */
 #define COLON		18	/* : */
 
+//modified
+#define TRUE 1
+#define FALSE 0
+#define RWORDS_SIZE 19
+#define SYMBOLS_SIZE 15
 
+#define isStringEqual(A, B) (strcmp((A), (B)) == 0)
+#define isLowerCharacter(X) ((X) >= 'a' && (X) <= 'z')
+#define isUpperCharacter(X) ((X) >= 'A' && (X) <= 'Z')
+#define isAlphabet(X) (isLowerCharacter(X) || isUpperCharacter(X))
+#define isNumber(X)  ((X) >= 48 && (X) <= 57)
+#define isWhiteSpace(X) ((X) == ' ' || (X) == '\n' || (X) == '\t')
+#define isSymbol(X) (!isNumber((X)) && !isAlphabet((X)) && !isWhiteSpace((X)))
+#define setNull(X) (X) = '\0'
+#define isEOF(X) ((X) == EOF)
+#define isSymbolFound(X) ((X) < 19 && (X) > 0)
+#define isRWordFound(X) ((X) < 15 && (X) > 0)
+#define copyString(A, B) strcpy(A, B)
+#define loop(a, n) int i;for(i = a; i < n; i++)
