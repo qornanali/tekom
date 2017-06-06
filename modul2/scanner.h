@@ -6,10 +6,12 @@ typedef struct _token{
 
 /* token type */
 
+#define UNIDENTIFIED 0
 #define IDENTIFIER 	1
 #define NUMBER 		2
 #define RWORD 		3
 #define SYMBOL 		4
+#define WHITESPACE	5
 
 /* RESERVED WORD DEFINITION */
 #define BEGIN		0
