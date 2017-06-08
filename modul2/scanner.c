@@ -124,6 +124,7 @@ int getToken(void){
 				token.attr = RWORD;
 				found(new_token);
 			}
+			//
 			// else if(token.attr == WHITESPACE){
 			// 	clearToken();			
 			// 	fseek(infile, -1, SEEK_CUR);
