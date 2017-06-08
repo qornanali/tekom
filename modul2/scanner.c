@@ -27,6 +27,8 @@ char symbols[19][2] = {"+", "-", "*", "(", ")", "=", ",", ".", ";", ":=", "<", "
 FILE * infile;
 token_t token;
 
+int rword_value = 0;
+
 /* Prototype */
 void clearToken(void);
 void setValueToken(void);
@@ -95,9 +97,10 @@ void setValueToken(void){
 		int val = checkRWord(token.charvalue);
 		if(isRWordFound(val)){
 			token.value = val;
+			rword_value = token = val;
 		}
 	}else if(token.attr == IDENTIFIER){
-		//IDENTIFIER VALUE
+		token.value = rword_value;
 	}
 }
 
@@ -119,26 +122,22 @@ int getToken(void){
 		}else if(isWhiteSpace(ch)){
 			chAttr = WHITESPACE;
 		}
-		if(token.attr != chAttr && token.attr != NULL){
-			if(isRWordFound((checkRWord(token.charvalue)))){
-				token.attr = RWORD;
-				found(new_token);
+		if(chAttr != WHITESPACE){
+			if(token.attr != chAttr && token.attr != NULL){
+				if(isRWordFound((checkRWord(token.charvalue)))){
+					token.attr = RWORD;
+					found(new_token);
+				}
+			}else{
+				token.attr = chAttr;
+				token.charvalue[i] = ch;
+				i++;
 			}
-			//
-			// else if(token.attr == WHITESPACE){
-			// 	clearToken();			
-			// 	fseek(infile, -1, SEEK_CUR);
-			// }else{
-			// 	found(new_token);
-			// } dunno why..
-		}else{ 
-			token.attr = chAttr;
-			token.charvalue[i] = ch;
-			i++;
+		}else{
+
 		}
 		if(new_token == TRUE){
 			setValueToken();
-			fseek(infile, -1, SEEK_CUR);
 		}
 	}while(!isEOF(ch) && !isFound(new_token));
 }
