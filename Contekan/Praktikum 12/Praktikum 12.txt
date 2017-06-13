@@ -1,0 +1,9 @@
+program example122;
+var i,j,sum;
+begin
+	while 1=1 do
+		begin
+			if 2=2 then write(2);
+			write(1)
+		end
+end. 

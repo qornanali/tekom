@@ -1,0 +1,17 @@
+
+int 0 0 3
+lit 0 0 20
+sto 0 0 0
+lit 0 0 40
+sto 0 0 1
+lit 0 0 30
+lod 0 0 0
+opr 0 0 1
+lit 0 0 80
+lod 0 0 1
+lit 0 0 4
+opr 0 0 4
+opr 0 0 2
+opr 0 0 3
+sto 0 0 2
+hlt 0 0 0

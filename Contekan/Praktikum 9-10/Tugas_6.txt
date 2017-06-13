@@ -1,0 +1,23 @@
+int 0 0 3 //deklarasi 3 variable
+lit 0 0 1 //siapkan angka 1
+sto 0 0 1 //simpan di var 2, variable untuk increment
+lit 0 0 1 //siapkan angka 1
+sto 0 0 2 //simpan di var 3, variable untuk hasil
+get 0 0 0 //ambil angka dari keyboard
+sto 0 0 0 //simpan di var 1, variable untuk input
+lod 0 0 1 //ambil angka dari var 2
+lod 0 0 0 //ambil angka dari var 1
+opr 0 0 7 //angka pertama < angka kedua
+jpc 0 0 20 //if false, go to halt
+lod 0 0 1 //if true
+lit 0 0 1
+opr 0 0 1
+sto 0 0 1
+lod 0 0 1
+lod 0 0 2
+opr 0 0 1
+sto 0 0 2
+jmp 0 0 7
+lod 0 0 2
+put 0 0 0
+hlt 0 0 0

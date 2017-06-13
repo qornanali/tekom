@@ -1,0 +1,28 @@
+ALOKASI:
+	int 0 0 2
+INPUT:
+	get 0 0 0
+	sto 0 0 0
+HASIL:
+	lod 0 0 0
+	sto 0 0 1
+PROSES:
+	lod 0 0 0
+	lit 0 0 1
+	opr 0 0 2
+	sto 0 0 0
+	lod 0 0 0
+	lit 0 0 1
+	opr 0 0 9
+	jpc 0 0 NO
+YES:
+	lod 0 0 0
+	lod 0 0 1
+	opr 0 0 3
+	sto 0 0 1
+	jmp 0 0 PROSES
+NO:
+	lod 0 0 1
+	put 0 0 0
+AKHIR:
+	hlt 0 0 0
