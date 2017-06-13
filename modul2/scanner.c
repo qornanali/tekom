@@ -100,9 +100,12 @@ void setValueToken(void){
 }
 
 int checkIdentifier(char * chars){
-	int jml;
-
-	return jml;
+	int x = 0;
+    while(x < strlen(chars)) {
+           if(!isdigit(*(chars+x))) 
+           x++;
+    }
+    return x;
 }
 
 int getToken(void){
@@ -111,7 +114,7 @@ int getToken(void){
 	int new_token;
 	char ch;
 	do{
-		ch = (char) fgetc(infile)
+		ch = (char) fgetc(infile);
 		char chAttr;
 		if(isEOF(ch)){
 			printf("%3d %3d %s \n", token.attr, token.value, token.charvalue);
@@ -154,7 +157,7 @@ int getToken(void){
 					}
 				}
 			}
-		}else if(i > 0){ //supaya gak tiap whitespace melakukan pengecekan lagi
+		}else if(i > 0 && isWhiteSpace(ch)){ //supaya gak tiap whitespace melakukan pengecekan lagi
 			if(token.attr == SYMBOL){
 				int symbolId = checkSymbol(token.charvalue);
 				if(symbolId != 5 && symbolId != 7 && symbolId != 10 && symbolId != 13){ //bukan <,>,.,=
@@ -163,7 +166,7 @@ int getToken(void){
 			}else{
 				if(isRWordFound((checkRWord(token.charvalue)))){ //mengecek apakah rword
 					token.attr = RWORD;
-				}else if (isIdentifier(token.value)){ // mengecek apakah identifier
+				}else if (isIdentifier(token.charvalue)){ // mengecek apakah identifier
 					token.attr = IDENTIFIER;
 				}	
 				found(new_token); //token ditemukan ketika number,identifier,rword ketemu whitespace
