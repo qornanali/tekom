@@ -1,12 +1,8 @@
-program example21;
-var n, temp;
-
-procedure fact(n);
+program example33;
 begin
-    if n <= 5 then temp := 1
-else temp := n
-end;
-begin read(n);
-    fact(n);
-    write(temp)
+ begin
+ 200 + 10;
+ 30 - 8
+ end;
+ 13 * 46
 end.

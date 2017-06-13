@@ -1,34 +1,90 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "scanner.h"
+#include<stdio.h> 
+#include<stdlib.h> 
+#include<ctype.h> 
+#include<string.h> 
+#include "compiler.h" 
 #include <conio.h>
 
 /* Global variable */
-FILE * infile;
 token_t token;
+FILE * infile;
 
 int value = 0;
 int rword_value = 0;
 
-/* Prototype */
-void clearToken(void);
-void setValueToken(void);
-void initToken(char * name);
-int getToken(void);
-int checkRWord(char * chars);
-int checkSymbol(char * chars);
-int checkIdentifier(char * chars);
-
 int main(int argc, char *argv[]){
-
-	initToken(argv[1]);
-	while(getToken() != EOF) {
-		printf("%3d %3d %s \n", token.attr, token.value, token.charvalue);
-	} 
-		
-	return 0;
+    int c = 0;
+    initToken(argv[1]);
+    program();
+    printf("Congratulations: No error is found\n");
 }
+
+void program(void){
+    getToken();
+    if (!isCompilerProgram(token)){
+        printf("Error : Reserved Word 'program' is expected\n");
+        exit(-1);
+    }
+
+    getToken();
+    if (!isCompilerIdentifier(token)){
+        printf("Error : Identifier is expected after 'program' \n");
+        exit(-1);
+    }
+
+    getToken();
+    if (!isCompilerSemicolon(token)){
+        printf("Error : Symbol ';' is expected\n");
+        exit(-1);
+    }
+
+    getToken();
+    statement();
+	
+    getToken();
+    if (!isCompilerPeriod(token)){
+        printf("Error : Symbol '.' is expected\n");
+        exit(-1);
+    }
+}
+
+void statement(void){
+    if(isCompilerBegin(token)){
+		getToken();
+		statement();
+
+		getToken();
+		while(isCompilerSemicolon(token)){
+			getToken();
+			statement();
+			getToken();
+		}
+		
+		if(!isCompilerEnd(token)){
+			printf("Error : Reserved Word 'end' is expected\n");
+			exit(-1);
+		}
+		
+	}else if(isCompilerNumber(token)){
+		getToken();
+		
+		if(!isCompilerOperator(token)){
+			printf("Error : Reserved symbol 'operator' is expected\n");
+			exit(-1);
+		}
+		
+		getToken();
+		
+		if(!isCompilerNumber(token)){
+			printf("Error : Number is expected\n");
+			exit(-1);
+		}
+	}else{
+		printf("Error : Reserved word or number expected\n");
+		exit(-1);
+	}
+}
+
 
 void initToken(char * name){
 	if((infile = fopen(name, "r")) == NULL){
@@ -101,7 +157,6 @@ int getToken(void){
 		if(isEOF(ch)){
 			if(!isStringEmpty(token.charvalue)){
 				setValueToken();
-				printf("%3d %3d %s \n", token.attr, token.value, token.charvalue);
 			}
 			return EOF;
 		}else if(!isWhiteSpace(ch)){
@@ -166,7 +221,7 @@ int getToken(void){
 				if(isRWordFound(rwordId)){
 					token.attr = RWORD;
 					value = rwordId;
-				}else if (isIdentifier(token.charvalue)){ 
+				}else if (isIdentifierFound(token.charvalue)){ 
 					token.attr = IDENTIFIER;
 				}	
 				found(new_token); 

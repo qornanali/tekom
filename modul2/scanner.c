@@ -21,7 +21,6 @@ int checkSymbol(char * chars);
 int checkIdentifier(char * chars);
 
 int main(int argc, char *argv[]){
-
 	initToken(argv[1]);
 	// initToken("../pascal/program4.txt");
 	while(getToken() != EOF) {
@@ -82,11 +81,14 @@ void setValueToken(void){
 }
 
 int checkIdentifier(char * chars){
-	 if(isdigit(*(chars+1))) {
-		 return FALSE;
-	 }else{
-		 return TRUE;
-	 }
+	int i;
+	while(i < strlen(chars)){
+		if(isdigit(*(chars+i))){	
+			return FALSE;
+		}
+		++i;
+	}
+	return TRUE;
 }
 
 int getToken(void){
@@ -98,6 +100,10 @@ int getToken(void){
 		ch = (char) fgetc(infile);
 		char chAttr;
 		if(isEOF(ch)){
+			if(!isStringEmpty(token.charvalue)){
+				setValueToken();
+				printf("new token %3d %3d %s \n", token.attr, token.value, token.charvalue);
+			}
 			return EOF;
 		}else if(!isWhiteSpace(ch)){
 			puts("not whitespace");
@@ -162,9 +168,9 @@ int getToken(void){
 					if(isSymbolFound(symbolId) ){ //kalau ada di daftar simbol maka token ditemukan
 						puts("2.1.1.1");
 						// getch();
+						value = symbolId;
 						if(symbolId != 5 && symbolId != 7 && symbolId != 10 && symbolId != 13 && symbolId != 18){
 							found(new_token);
-							value = symbolId;
 						}
 					}else{ //jika tidak, yang dimasukkan tadi kosongkan, dan kursor file dimundurkan satu langkah
 						puts("2.1.1.2");
@@ -188,21 +194,25 @@ int getToken(void){
 					found(new_token);
 					value = symbolId;
 				} 
-			}else{
+			}else if(token.attr == NUMBER){
 				puts("2");
+				// getch();
+				found(new_token);
+			}else{
+				puts("3");
 				// getch();
 				int rwordId = checkRWord(token.charvalue);
 				if(isRWordFound(rwordId)){ //mengecek apakah rword
-					puts("2.1");
+					puts("3.1");
 					// getch();
 					token.attr = RWORD;
 					value = rwordId;
 				}else if (isIdentifier(token.charvalue)){ // mengecek apakah identifier
-					puts("2.2");
+					puts("3.2");
 					// getch();
 					token.attr = IDENTIFIER;
 				}
-				found(new_token); //token ditemukan ketika number,identifier,rword ketemu whitespace
+				found(new_token); //token ditemukan
 			}
 		}else{
 			puts("C");

@@ -1,3 +1,16 @@
+#define isCompilerProgram(X) (X.attr == RWORD && X.value == PROGRAM)
+#define isCompilerBegin(X) (X.attr == RWORD && X.value == BEGIN)
+#define isCompilerEnd(X) (X.attr == RWORD && X.value == END)
+#define isCompilerIdentifier(X) (X.attr == IDENTIFIER)
+#define isCompilerNumber(X) (X.attr == NUMBER)
+#define isCompilerSemicolon(X) (X.attr == SYMBOL && X.value == SEMICOLON)
+#define isCompilerPeriod(X) (X.attr == SYMBOL && X.value == PERIOD) 
+
+#define isCompilerOperatorPlus(X) (X.attr == SYMBOL && X.value == PLUS)
+#define isCompilerOperatorMinus(X) (X.attr == SYMBOL && X.value == MINUS)
+#define isCompilerOperatorTimes(X) (X.attr == SYMBOL && X.value == TIMES)
+#define isCompilerOperator(X) (isCompilerOperatorPlus(X) || isCompilerOperatorMinus(X) || isCompilerOperatorTimes(X))
+
 typedef struct _token{
 	char attr;				
 	char charvalue[30];		
@@ -72,5 +85,15 @@ typedef struct _token{
 #define isFound(X) ((X) == TRUE)
 #define found(X) (X) = TRUE
 #define isNull(X) ((X) == '\0' || (X) == NULL)
-#define isIdentifier(X) (checkIdentifier(X) == TRUE)
+#define isIdentifierFound(X) (checkIdentifier(X) == TRUE)
 #define isStringEmpty(X) (strlen(X) == 0)
+
+/* Prototype */
+void setValueToken(void);
+int getToken(void);
+int checkRWord(char * chars);
+int checkSymbol(char * chars);
+int checkIdentifier(char * chars);
+void initToken(char * name);
+void program(void);
+void statement(void);

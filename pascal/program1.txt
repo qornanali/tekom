@@ -1,2 +1,2 @@
-Program program11;
+program example31;
 526 * 321.

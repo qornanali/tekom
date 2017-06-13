@@ -1,4 +1,4 @@
-Program example12;
+program example12;
 Begin
 	100 + 21;
 	30 - 643;
