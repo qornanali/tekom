@@ -6,7 +6,7 @@ typedef struct _token{
 
 /* token type */
 
-#define UNIDENTIFIED 0
+#define ALPHABET 	0
 #define IDENTIFIER 	1
 #define NUMBER 		2
 #define RWORD 		3

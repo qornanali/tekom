@@ -21,6 +21,7 @@
 #define isFound(X) ((X) == TRUE)
 #define found(X) (X) = TRUE
 #define isNull(X) ((X) == '\0' || (X) == NULL)
+#define isIdentifier(X) (checkIdentifier(X) == strlen(X))
 
 /* Global variable */
 FILE * infile;
@@ -35,6 +36,7 @@ void initToken(char * name);
 int getToken(void);
 int checkRWord(char * chars);
 int checkSymbol(char * chars);
+int checkIdentifier(char * chars);
 
 int main(int argc, char *argv[]){
 	initToken(argv[1]);
@@ -97,74 +99,76 @@ void setValueToken(void){
 	}
 }
 
+int checkIdentifier(char * chars){
+	int jml;
+
+	return jml;
+}
+
 int getToken(void){
 	clearToken();
 	int i = 0;
 	int new_token;
 	char ch;
 	do{
-		ch = (char) fgetc(infile);
-		char chAttr = UNIDENTIFIED;
+		ch = (char) fgetc(infile)
+		char chAttr;
 		if(isEOF(ch)){
 			printf("%3d %3d %s \n", token.attr, token.value, token.charvalue);
 			return EOF;
-		}else if(isSymbol(ch)){
-			chAttr = SYMBOL;
-		}else if(isNumber(ch)){
-			chAttr = NUMBER;
-		}else if(isWhiteSpace(ch)){
-			chAttr = WHITESPACE;
-		}
-		if(chAttr != WHITESPACE){
-			if(token.attr != chAttr && !isNull(token.attr)){
-				if(isRWordFound((checkRWord(token.charvalue)))){
+		}else if(!isWhiteSpace(ch)){
+			if(isSymbol(ch)){
+				chAttr = SYMBOL;
+			}else if(isNumber(ch)){
+				chAttr = NUMBER;
+			}
+			if(token.attr != chAttr && !isNull(token.attr)){ //jika bertemu dengan karakter yang attr nya berbeda
+				if(isRWordFound((checkRWord(token.charvalue)))){ //mengecek apakah termasuk di daftar kata rword
 					token.attr = RWORD;
 					found(new_token);
 					fseek(infile, -1, SEEK_CUR);
 				}else if(token.attr != SYMBOL || token.attr == IDENTIFIER){ //identifier
-					if(isAlphabet(ch) || (isNumber(ch) && i > 0)){	
+					if(isAlphabet(ch) || (isNumber(ch) && i > 0)){	//identifier terdiri dari alfabet dan angka
 						token.attr = IDENTIFIER;
 						token.charvalue[i] = ch;
 						i++;
-					}else{
+					}else{ //token akan ditemukan jika bertemu selain alfabet dan angka
 						found(new_token);
 						fseek(infile, -1, SEEK_CUR);
 					}
-				}else{ // if(token.attr == SYMBOL || token.attr == NUMBER)
+				}else{ // untuk symbol dan angka
 					found(new_token);
 					fseek(infile, -1, SEEK_CUR);
 				}
-			}else{
+			}else{ //mengumpulkan isi token
 				token.attr = chAttr;
 				token.charvalue[i] = ch;
 				i++;
-				if(chAttr == SYMBOL){
-					if(isSymbolFound(checkSymbol(token.charvalue))){
+				if(isSymbol(ch)){ //simbol bisa terdiri dari 2 karakter jadi harus dilakukan pengecekan
+					if(isSymbolFound(checkSymbol(token.charvalue))){ //kalau ada di daftar simbol maka token ditemukan
 						found(new_token);
-					}else{
+					}else{ //jika tidak, yang dimasukkan tadi kosongkan, dan kursor file dimundurkan satu langkah
 						setNull(token.charvalue[i]);
 						i--;
 						fseek(infile, -1, SEEK_CUR);
 					}
 				}
 			}
-		}else if(i > 0 && chAttr == WHITESPACE){ //supaya gak tiap whitespace melakukan pengecekan lagi
+		}else if(i > 0){ //supaya gak tiap whitespace melakukan pengecekan lagi
 			if(token.attr == SYMBOL){
 				int symbolId = checkSymbol(token.charvalue);
-				if(symbolId != 5 && symbolID != 7 && symbolId != 10 && symbolId != 13){ //bukan <,>,.,=
+				if(symbolId != 5 && symbolId != 7 && symbolId != 10 && symbolId != 13){ //bukan <,>,.,=
 					found(new_token);
 				} 
 			}else{
 				if(isRWordFound((checkRWord(token.charvalue)))){ //mengecek apakah rword
 					token.attr = RWORD;
-				}else{ // mengecek apakah identifier
-					
+				}else if (isIdentifier(token.value)){ // mengecek apakah identifier
+					token.attr = IDENTIFIER;
 				}	
-				found(new_token);
+				found(new_token); //token ditemukan ketika number,identifier,rword ketemu whitespace
 			}
 		}
-		if(new_token == TRUE){
-			setValueToken();
-		}
-	}while(!isEOF(ch) && !isFound(new_token));
+	}while(!isEOF(ch) && !isFound(new_token)); //loop selama bukan eof  dan token tidak ditemukan
+	setValueToken(); //mengisi value token
 }
