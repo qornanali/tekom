@@ -20,10 +20,9 @@
 #define copyString(A, B) strcpy(A, B)
 #define isFound(X) ((X) == TRUE)
 #define found(X) (X) = TRUE
+#define isNull(X) ((X) == '\0' || (X) == NULL)
 
 /* Global variable */
-char rwords[][10] = {"begin","div","do", "else", "end", "if", "procedure", "program", "then", "var", "while", "read", "write", "forward", "function"};
-char symbols[19][2] = {"+", "-", "*", "(", ")", "=", ",", ".", ";", ":=", "<", "<=", "<>", ">", ">=", "[", "]", "..", ":"};
 FILE * infile;
 token_t token;
 
@@ -36,7 +35,6 @@ void initToken(char * name);
 int getToken(void);
 int checkRWord(char * chars);
 int checkSymbol(char * chars);
-int checkIdentifier(char * chars);
 
 int main(int argc, char *argv[]){
 	initToken(argv[1]);
@@ -52,35 +50,30 @@ void initToken(char * name){
 }
 
 int checkRWord(char * chars){
+	char rwords[][10] = {"begin","div","do", "else", "end", "if", "procedure", "program", "then", "var", "while", "read", "write", "forward", "function"};
 	int i = 0;
-	while(i < 15 && !isStringEqual(rwords[i], chars)){
+	while(i < 15 && !isStringEqual(rwords[i], chars)){  //iterasi utnuk ngebandingin apakah ada dalam daftar rword atau engga
 		i++;
 	}
-	return i;
-}
-
-int checkIdentifier(char * chars){
-	int i = 0, j = 0;
-	while(i < strlen(chars)){
-		// if(i == 0 && isNumber())
-		i++;
-	}
+	return i; //jika i >= 15 berarti tidak ada di dalam daftar rword
 }
 
 int checkSymbol(char * chars){
-	int i = 0;
-	while(i < 19 && !isStringEqual(symbols[i], chars)){
+	char symbols[19][2] = {"+", "-", "*", "(", ")", "=", ",", ".", ";", ":=", "<", "<=", "<>", ">", ">=", "[", "]", "..", ":"};
+	int i = 0; 
+	while(i < 19 && !isStringEqual(symbols[i], chars)){ //iterasi utnuk ngebandingin apakah ada dalam daftar symbol atau engga
 		i++;
 	}
-	return i;
+	return i; //jika i >= 19 berarti tidak ada di dalam daftar symbol
 }
+
 
 void clearToken(void){
 	int i = 0;
-	while(token.charvalue[i] != '\0'){
+	while(!isNull(token.charvalue[i])){ //printf itu sampai menemukan \0 jadi pembuatan null ini lebih efesien
 		setNull(token.charvalue[i]);
 		i++;
-	}
+	} 
 	setNull(token.attr);
 	setNull(token.value);
 }
@@ -97,7 +90,7 @@ void setValueToken(void){
 		int val = checkRWord(token.charvalue);
 		if(isRWordFound(val)){
 			token.value = val;
-			rword_value = token = val;
+			rword_value = val;
 		}
 	}else if(token.attr == IDENTIFIER){
 		token.value = rword_value;
@@ -123,18 +116,52 @@ int getToken(void){
 			chAttr = WHITESPACE;
 		}
 		if(chAttr != WHITESPACE){
-			if(token.attr != chAttr && token.attr != NULL){
+			if(token.attr != chAttr && !isNull(token.attr)){
 				if(isRWordFound((checkRWord(token.charvalue)))){
 					token.attr = RWORD;
 					found(new_token);
+					fseek(infile, -1, SEEK_CUR);
+				}else if(token.attr != SYMBOL || token.attr == IDENTIFIER){ //identifier
+					if(isAlphabet(ch) || (isNumber(ch) && i > 0)){	
+						token.attr = IDENTIFIER;
+						token.charvalue[i] = ch;
+						i++;
+					}else{
+						found(new_token);
+						fseek(infile, -1, SEEK_CUR);
+					}
+				}else{ // if(token.attr == SYMBOL || token.attr == NUMBER)
+					found(new_token);
+					fseek(infile, -1, SEEK_CUR);
 				}
 			}else{
 				token.attr = chAttr;
 				token.charvalue[i] = ch;
 				i++;
+				if(chAttr == SYMBOL){
+					if(isSymbolFound(checkSymbol(token.charvalue))){
+						found(new_token);
+					}else{
+						setNull(token.charvalue[i]);
+						i--;
+						fseek(infile, -1, SEEK_CUR);
+					}
+				}
 			}
-		}else{
-
+		}else if(i > 0 && chAttr == WHITESPACE){ //supaya gak tiap whitespace melakukan pengecekan lagi
+			if(token.attr == SYMBOL){
+				int symbolId = checkSymbol(token.charvalue);
+				if(symbolId != 5 && symbolID != 7 && symbolId != 10 && symbolId != 13){ //bukan <,>,.,=
+					found(new_token);
+				} 
+			}else{
+				if(isRWordFound((checkRWord(token.charvalue)))){ //mengecek apakah rword
+					token.attr = RWORD;
+				}else{ // mengecek apakah identifier
+					
+				}	
+				found(new_token);
+			}
 		}
 		if(new_token == TRUE){
 			setValueToken();
