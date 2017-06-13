@@ -6,7 +6,7 @@
             "name": "C++ Launch (Windows)",
             "type": "cppvsdbg",
             "request": "launch",
-            "program": "enter program name, for example ${workspaceRoot}/a.exe",
+            "program": "${workspaceRoot}/modul2/a.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceRoot}",
