@@ -3,7 +3,7 @@ var n, temp;
 
 procedure fact(n);
 begin
-	if n<=5 then temp :=1
+	if n <= 5 then temp:=1
 else temp := n
 end;
 begin read(n);

@@ -1,8 +1,8 @@
-Program example13;
-Begin
- Begin
+program example13;
+begin
+ begin
 	200 + 10;
 	30 - 8
- End;
+ end;
  13 * 46
-End.
+end.
