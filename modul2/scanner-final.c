@@ -103,7 +103,6 @@ int getToken(void){
 				setValueToken();
 				printf("%3d %3d %s \n", token.attr, token.value, token.charvalue);
 			}
-			return EOF;
 		}else if(!isWhiteSpace(ch)){
 			if(isSymbol(ch)){
 				chAttr = SYMBOL;
@@ -174,4 +173,5 @@ int getToken(void){
 		}
 	}while(!isEOF(ch) && !isFound(new_token)); 
 	setValueToken(); 
+	return ch;
 }

@@ -1,16 +1,3 @@
-#define isCompilerProgram(X) (X.attr == RWORD && X.value == PROGRAM)
-#define isCompilerBegin(X) (X.attr == RWORD && X.value == BEGIN)
-#define isCompilerEnd(X) (X.attr == RWORD && X.value == END)
-#define isCompilerIdentifier(X) (X.attr == IDENTIFIER)
-#define isCompilerNumber(X) (X.attr == NUMBER)
-#define isCompilerSemicolon(X) (X.attr == SYMBOL && X.value == SEMICOLON)
-#define isCompilerPeriod(X) (X.attr == SYMBOL && X.value == PERIOD) 
-
-#define isCompilerOperatorPlus(X) (X.attr == SYMBOL && X.value == PLUS)
-#define isCompilerOperatorMinus(X) (X.attr == SYMBOL && X.value == MINUS)
-#define isCompilerOperatorTimes(X) (X.attr == SYMBOL && X.value == TIMES)
-#define isCompilerOperator(X) (isCompilerOperatorPlus(X) || isCompilerOperatorMinus(X) || isCompilerOperatorTimes(X))
-
 typedef struct _token{
 	char attr;				
 	char charvalue[30];		
@@ -71,29 +58,42 @@ typedef struct _token{
 #define FALSE 0
 #define RWORDS_SIZE 15
 #define SYMBOLS_SIZE 19
-#define isStringEqual(A, B) (strcmp((A), (B)) == 0)
-#define isStringContain(A, B) (strstr((A), (B)) != NULL)
-#define isAlphabet(X) (((X) >= 'a' && (X) <= 'z') || ((X) >= 'A' && (X) <= 'Z'))
-#define isNumber(X)  ((X) >= '0' && (X) <= '9')
-#define isWhiteSpace(X) ((X) == ' ' || (X) == '\n' || (X) == '\t')
-#define isSymbol(X) (!isNumber((X)) && !isAlphabet((X)) && !isWhiteSpace((X)))
-#define setNull(X) (X) = '\0'
-#define isEOF(X) ((X) == EOF)
-#define isSymbolFound(X) ((X) < SYMBOLS_SIZE && (X) >= 0)
-#define isRWordFound(X) ((X) < RWORDS_SIZE && (X) >= 0)
+#define stringIsEqual(A, B) (strcmp((A), (B)) == 0)
+#define stringIsContain(A, B) (strstr((A), (B)) != NULL)
+#define charIsAlphabet(X) (((X) >= 'a' && (X) <= 'z') || ((X) >= 'A' && (X) <= 'Z'))
+#define charIsNumber(X)  ((X) >= '0' && (X) <= '9')
+#define charIsWhiteSpace(X) ((X) == ' ' || (X) == '\n' || (X) == '\t')
+#define charIsSymbol(X) (!charIsNumber((X)) && !charIsAlphabet((X)) && !charIsWhiteSpace((X)))
+#define charIsEOF(X) ((X) == EOF)
+#define setCharNull(X) (X) = '\0'
+#define setVarNull(X) (X) = NULL
+#define setStringNull(X, n) memset(X,'\0', n)
+#define stringIsSymbol(X) ((X) < SYMBOLS_SIZE && (X) >= 0)
+#define stringIsRword(X) ((X) < RWORDS_SIZE && (X) >= 0)
 #define copyString(A, B) strcpy(A, B)
-#define isFound(X) ((X) == TRUE)
-#define found(X) (X) = TRUE
-#define isNull(X) ((X) == '\0' || (X) == NULL)
-#define isIdentifierFound(X) (checkIdentifier(X) == TRUE)
-#define isStringEmpty(X) (strlen(X) == 0)
+#define varIsNull(X) ((X) == '\0' || (X) == NULL)
+#define stringIsEmpty(X) (strlen(X) == 0)
+#define moveFileCursor(F, X) fseek(F, X, SEEK_CUR)
+
+#define tokenIsRword(X) (X.attr == RWORD)
+#define tokenIsProgram(X) (tokenIsRword(X) && X.value == PROGRAM)
+#define tokenIsBegin(X) (tokenIsRword(X)&& X.value == BEGIN)
+#define tokenIsEnd(X) (tokenIsRword(X) && X.value == END)
+#define tokenIsIdentifier(X) (X.attr == IDENTIFIER)
+#define tokenIsNumber(X) (X.attr == NUMBER)
+#define tokenIsSymbol(X) (X.attr == SYMBOL)
+#define tokenIsSemicolon(X) (tokenIsSymbol(X) && X.value == SEMICOLON)
+#define tokenIsPeriod(X) (tokenIsSymbol(X) && X.value == PERIOD) 
+#define tokenIsPlus(X) (tokenIsSymbol(X) && X.value == PLUS)
+#define tokenIsMinus(X) (tokenIsSymbol(X) && X.value == MINUS)
+#define tokenIsTimes(X) (tokenIsSymbol(X) && X.value == TIMES)
+#define tokenIsOperator(X) (tokenIsPlus(X) || tokenIsMinus(X) || tokenIsTimes(X))
 
 /* Prototype */
-void setValueToken(void);
 int getToken(void);
 int checkRWord(char * chars);
 int checkSymbol(char * chars);
-int checkIdentifier(char * chars);
+void clearToken(void);
 void initToken(char * name);
 void program(void);
 void statement(void);
