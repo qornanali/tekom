@@ -1,0 +1,25 @@
+int   0 0 3
+get   0 0 0
+sto   0 0 2
+lit   0 0 0
+sto   0 0 1
+lit   0 0 1
+sto   0 0 0
+lod   0 0 0
+lod   0 0 2
+opr   0 0 8
+jpc   0 0 20
+lod   0 0 1
+lod   0 0 0
+opr   0 0 1
+sto   0 0 1
+lod   0 0 0
+lit   0 0 1
+opr   0 0 1
+sto   0 0 0
+jmp   0 0 7
+lod   0 0 1
+put   0 0 0
+hlt  0 0 0
+
+
