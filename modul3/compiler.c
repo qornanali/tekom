@@ -185,5 +185,6 @@ int getToken(void){
 			token.value = tempVal;
 		}
         moveFileCursor(infile, -1);
+		return c1;
 	}
 }

@@ -17,18 +17,23 @@ int main(int argc, char *argv[]){
 
 void program(void){
     getToken();
+	printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
+	// getch();
     if (!tokenIsProgram(token)){
         printf("Error : Reserved Word 'program' is expected\n");
         exit(-1);
     }
 
     getToken();
+	printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
+	// getch();
     if (!tokenIsIdentifier(token)){
         printf("Error : Identifier is expected after 'program' \n");
         exit(-1);
     }
 
     getToken();
+	printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
     if (!tokenIsSemicolon(token)){
         printf("Error : Symbol ';' is expected\n");
         exit(-1);
@@ -38,6 +43,7 @@ void program(void){
     statement();
 	
     getToken();
+	printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
     if (!tokenIsPeriod(token)){
         printf("Error : Symbol '.' is expected\n");
         exit(-1);
@@ -47,13 +53,18 @@ void program(void){
 void statement(void){
     if(tokenIsBegin(token)){
 		getToken();
+		printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
 		statement();
 
 		getToken();
+		printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
 		while(tokenIsSemicolon(token)){
 			getToken();
+			printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
 			statement();
+			
 			getToken();
+			printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
 		}
 		
 		if(!tokenIsEnd(token)){
@@ -61,26 +72,55 @@ void statement(void){
 			exit(-1);
 		}
 		
-	}else if(tokenIsNumber(token)){
+	}else {
 		getToken();
-		
-		if(!tokenIsOperator(token)){
-			printf("Error : Reserved symbol 'operator' is expected\n");
-			exit(-1);
-		}
-		
-		getToken();
-		
-		if(!tokenIsNumber(token)){
-			printf("Error : Number is expected\n");
-			exit(-1);
-		}
-	}else{
-		printf("Error : Statement expected\n");
-		exit(-1);
+		printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
+		expression();
 	}
 }
 
+void expression(void){
+	if(tokenIsPlus(token) || tokenIsMinus(token)){
+		getToken();
+		printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
+	}
+	term();
+	while(tokenIsPlus(token) || tokenIsMinus(token)){
+		getToken();
+		printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
+		term();
+	}
+}
+
+void term(void){
+	factor();
+	while(tokenIsTimes(token) || tokenIsDiv(token)){
+		getToken();
+		printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
+		factor();
+	}
+}
+
+void factor(void){
+	if(tokenIsNumber(token)){
+		getToken();
+		printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
+		return;
+	}else if(tokenIsLParen(token)){
+		getToken();
+		printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
+		expression();
+		if(tokenIsRParen(token)){
+			getToken();
+			printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
+			return;
+		}else error();
+	}
+}
+
+void error(){
+	
+}
 
 void initToken(char * name){
 	if((infile = fopen(name, "r")) == NULL){
