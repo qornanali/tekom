@@ -1,8 +1,3 @@
-typedef struct _token{
-	char attr;				
-	char charvalue[30];		
-	int value;			
-} token_t;
 
 /* token type */
 
@@ -52,36 +47,23 @@ typedef struct _token{
 #define INTERVAL	17	/* .. */
 #define COLON		18	/* : */
 
-//modified
-#define TRUE 1
-#define FALSE 0
-#define RWORDS_SIZE 15
-#define SYMBOLS_SIZE 19
-#define stringIsEqual(A, B) (strcmp((A), (B)) == 0)
-#define stringIsContain(A, B) (strstr((A), (B)) != NULL)
-#define charIsAlphabet(X) (((X) >= 'a' && (X) <= 'z') || ((X) >= 'A' && (X) <= 'Z'))
-#define charIsNumber(X)  ((X) >= '0' && (X) <= '9')
-#define charIsWhiteSpace(X) ((X) == ' ' || (X) == '\n' || (X) == '\t')
-#define charIsSymbol(X) (!charIsNumber((X)) && !charIsAlphabet((X)) && !charIsWhiteSpace((X)))
-#define charIsEOF(X) ((X) == EOF)
-#define setCharNull(X) (X) = '\0'
-#define setVarNull(X) (X) = NULL
-#define setStringNull(X, n) memset(X,'\0', n)
-#define stringIsSymbol(X) ((X) < SYMBOLS_SIZE && (X) >= 0)
-#define stringIsRword(X) ((X) < RWORDS_SIZE && (X) >= 0)
-#define copyString(A, B) strcpy(A, B)
-#define varIsNull(X) ((X) == '\0' || (X) == NULL)
-#define stringIsEmpty(X) (strlen(X) == 0)
-#define moveFileCursor(F, X) fseek(F, X, SEEK_CUR)
-
 #define tokenIsRword(X) (X.attr == RWORD)
+#define tokenIsIdentifier(X) (X.attr == IDENTIFIER)
+#define tokenIsNumber(X) (X.attr == NUMBER)
+#define tokenIsSymbol(X) (X.attr == SYMBOL)
 #define tokenIsProgram(X) (tokenIsRword(X) && X.value == PROGRAM)
 #define tokenIsBegin(X) (tokenIsRword(X)&& X.value == BEGIN)
 #define tokenIsEnd(X) (tokenIsRword(X) && X.value == END)
 #define tokenIsDiv(X) (tokenIsRword(X) && token.value == DIV) 
-#define tokenIsIdentifier(X) (X.attr == IDENTIFIER)
-#define tokenIsNumber(X) (X.attr == NUMBER)
-#define tokenIsSymbol(X) (X.attr == SYMBOL)
+#define tokenIsVar(X) (tokenIsRword(X) && token.value == VAR) 
+#define tokenIsWhile(X) (tokenIsRword(X) && token.value == WHILE) 
+#define tokenIsDo(X) (tokenIsRword(X) && token.value == DO) 
+#define tokenIsIf(X) (tokenIsRword(X) && token.value == IF) 
+#define tokenIsThen(X) (tokenIsRword(X) && token.value == THEN) 
+#define tokenIsElse(X) (tokenIsRword(X) && token.value == ELSE) 
+#define tokenIsProcedure(X) (tokenIsRword(X) && token.value == PROCEDURE) 
+#define tokenIsRead(X) (tokenIsRword(X) && token.value == READ) 
+#define tokenIsWrite(X) (tokenIsRword(X) && token.value == WRITE) 
 #define tokenIsSemicolon(X) (tokenIsSymbol(X) && X.value == SEMICOLON)
 #define tokenIsPeriod(X) (tokenIsSymbol(X) && X.value == PERIOD) 
 #define tokenIsPlus(X) (tokenIsSymbol(X) && X.value == PLUS)
@@ -89,17 +71,26 @@ typedef struct _token{
 #define tokenIsTimes(X) (tokenIsSymbol(X) && X.value == TIMES)
 #define tokenIsLParen(X) (tokenIsSymbol(X) && X.value == LPAREN)
 #define tokenIsRParen(X) (tokenIsSymbol(X) && X.value == RPAREN)
+#define tokenIsComma(X) (tokenIsSymbol(X) && X.value == COMMA)
+#define tokenIsBecomes(X) (tokenIsSymbol(X) && X.value == BECOMES)
+#define tokenIsEql(X) (tokenIsSymbol(X) && X.value == EQL)
+#define tokenIsNotEql(X) (tokenIsSymbol(X) && X.value == NOTEQL)
+#define tokenIsLessThan(X) (tokenIsSymbol(X) && X.value == LESSTHAN)
+#define tokenIsGrtrThan(X) (tokenIsSymbol(X) && X.value == GRTRTHAN)
+#define tokenIsLessEql(X) (tokenIsSymbol(X) && X.value == LESSEQL)
+#define tokenIsGrtrEql(X) (tokenIsSymbol(X) && X.value == GRTREQL)
 #define tokenIsOperator(X) (tokenIsPlus(X) || tokenIsMinus(X) || tokenIsTimes(X))
 
 /* Prototype */
-int getToken(void);
-int checkRWord(char * chars);
-int checkSymbol(char * chars);
-void clearToken(void);
 void initToken(char * name);
 void program(void);
+void outblock(void);
+void inblock(void);
 void statement(void);
 void expression(void);
+void condition(void);
+void paramList(void);
 void term(void);
 void factor(void);
-void error();
+void error(int errId, char * chars);
+void procedureOrStatement(void);

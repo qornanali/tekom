@@ -10,12 +10,10 @@ token_t token;
 FILE * infile;
 
 int main(int argc, char *argv[]){
-
 	initToken(argv[1]);
 	while(getToken() != EOF) {
 		printf("%3d %3d %s \n", token.attr, token.value, token.charvalue);
-	} 
-		
+	} 	
 	return 0;
 }
 
@@ -27,7 +25,7 @@ void initToken(char * name){
 }
 
 int checkRWord(char * chars){
-	char rwords[][10] = {"begin","div","do", "else", "end", "if", "procedure", "program", "then", "var", "while", "read", "write", "forward", "function"};
+	char rwords[RWORDS_SIZE][10] = {"begin","div","do", "else", "end", "if", "procedure", "program", "then", "var", "while", "read", "write", "forward", "function"};
 	int i = 0;
 	while(i < RWORDS_SIZE && !stringIsEqual(rwords[i], chars)){  
 		i++;
@@ -36,7 +34,7 @@ int checkRWord(char * chars){
 }
 
 int checkSymbol(char * chars){
-	char symbols[][2] = {"+", "-", "*", "(", ")", "=", ",", ".", ";", ":=", "<", "<=", "<>", ">", ">=", "[", "]", "..", ":"};
+	char symbols[SYMBOLS_SIZE][3] = {"+", "-", "*", "(", ")", "=", ",", ".", ";", ":=", "<", "<=", "<>", ">", ">=", "[", "]", "..", ":"};
 	int i = 0; 
 	while(i < SYMBOLS_SIZE && !stringIsEqual(symbols[i], chars)){ 
 		i++;
