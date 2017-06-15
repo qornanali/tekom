@@ -1,31 +1,19 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "scanner.h"
+#include <stdio.h> 
+#include <stdlib.h> 
+#include <ctype.h> 
+#include <string.h> 
+#include "scanner.h" 
 #include <conio.h>
 
 /* Global variable */
-FILE * infile;
 token_t token;
-
-int value = 0;
-int rword_value = 0;
-
-/* Prototype */
-void clearToken(void);
-void setValueToken(void);
-void initToken(char * name);
-int getToken(void);
-int checkRWord(char * chars);
-int checkSymbol(char * chars);
-int checkIdentifier(char * chars);
+FILE * infile;
 
 int main(int argc, char *argv[]){
+
 	initToken(argv[1]);
-	// initToken("../pascal/program4.txt");
 	while(getToken() != EOF) {
-		printf("new token %3d %3d %s \n", token.attr, token.value, token.charvalue);
-		// getch();	
+		printf("%3d %3d %s \n", token.attr, token.value, token.charvalue);
 	} 
 		
 	return 0;
@@ -41,183 +29,86 @@ void initToken(char * name){
 int checkRWord(char * chars){
 	char rwords[][10] = {"begin","div","do", "else", "end", "if", "procedure", "program", "then", "var", "while", "read", "write", "forward", "function"};
 	int i = 0;
-	while(i < RWORDS_SIZE && !isStringEqual(rwords[i], chars)){  //iterasi utnuk ngebandingin apakah ada dalam daftar rword atau engga
+	while(i < RWORDS_SIZE && !stringIsEqual(rwords[i], chars)){  
 		i++;
 	}
-	return i; //jika i >= RWORDS_SIZE berarti tidak ada di dalam daftar rword
+	return i; 
 }
 
 int checkSymbol(char * chars){
 	char symbols[][2] = {"+", "-", "*", "(", ")", "=", ",", ".", ";", ":=", "<", "<=", "<>", ">", ">=", "[", "]", "..", ":"};
 	int i = 0; 
-	while(i < SYMBOLS_SIZE && !isStringEqual(symbols[i], chars)){ //iterasi utnuk ngebandingin apakah ada dalam daftar symbol atau engga
+	while(i < SYMBOLS_SIZE && !stringIsEqual(symbols[i], chars)){ 
 		i++;
 	}
-	return i; //jika i >= SYMBOLS_SIZE berarti tidak ada di dalam daftar symbol
+	return i; 
 }
-
 
 void clearToken(void){
-	int i = 0;
-	while(!isNull(token.charvalue[i])){ //printf itu sampai menemukan \0 jadi pembuatan null ini lebih efesien
-		setNull(token.charvalue[i]);
-		i++;
-	} 
-	setNull(token.attr);
-	setNull(token.value);
-}
-
-void setValueToken(void){
-	if(token.attr == SYMBOL){
-		token.value = value;
-	}else if(token.attr == NUMBER){
-		token.value = atoi(token.charvalue);
-	}else if(token.attr == RWORD){
-		token.value = value;
-		rword_value = token.value;
-	}else if(token.attr == IDENTIFIER){
-		token.value = rword_value;
-	}
-}
-
-int checkIdentifier(char * chars){
-	int i;
-	while(i < strlen(chars)){
-		if(isdigit(*(chars+i))){	
-			return FALSE;
-		}
-		++i;
-	}
-	return TRUE;
+	setStringNull(token.charvalue, 50);
+	setVarNull(token.attr);
+	setVarNull(token.value);
 }
 
 int getToken(void){
 	clearToken();
 	int i = 0;
-	int new_token;
-	char ch;
-	do{
-		ch = (char) fgetc(infile);
-		char chAttr;
-		if(isEOF(ch)){
-			if(!isStringEmpty(token.charvalue)){
-				setValueToken();
-				printf("new token %3d %3d %s \n", token.attr, token.value, token.charvalue);
-			}
-			return EOF;
-		}else if(!isWhiteSpace(ch)){
-			puts("not whitespace");
-			// getch();
-			printf("iterate : %c", ch);
-			if(isSymbol(ch)){
-				chAttr = SYMBOL;
-				puts(" SYMBOL");
-			}else if(isNumber(ch)){
-				chAttr = NUMBER;
-				puts(" NUMBER");
-			}else if(isAlphabet(ch)){
-				chAttr = ALPHABET;
-				puts(" ALPHABET");
-			}
-			// getch();
-			if(token.attr != chAttr && i>0){ //jika bertemu dengan karakter yang attr nya berbeda
-				puts("1");
-				// getch();
-				int rwordId = checkRWord(token.charvalue);
-				if(isRWordFound(rwordId)){ //mengecek apakah termasuk di daftar kata rword
-					puts("1.1");
-					// getch();
-					token.attr = RWORD;
-					found(new_token);
-					value = rwordId;
-					fseek(infile, -1, SEEK_CUR);
-				}else if(token.attr != SYMBOL){ //identifier
-					puts("1.2");
-					// getch();
-					if(isAlphabet(ch) || (isNumber(ch) && i > 0)){	//identifier hanya bisa terdiri dari alfabet dan angka
-						puts("1.2.1");
-						// getch();
-						token.attr = IDENTIFIER;
-						token.charvalue[i] = ch;
-						i++;
-					}else{ //token akan ditemukan jika bertemu selain alfabet dan angka
-						puts("1.2.2");
-						// getch();
-						if(token.attr == ALPHABET){
-							token.attr = IDENTIFIER;
-						}
-						found(new_token);
-						fseek(infile, -1, SEEK_CUR);
-					}
-				}else{ // untuk symbol dan angka
-					puts("1.3");
-					// getch();
-					found(new_token);
-					fseek(infile, -1, SEEK_CUR);
-				}
-			}else{ //mengumpulkan isi token
-				puts("2.1");
-				// getch();
-				token.attr = chAttr;
-				token.charvalue[i] = ch;
-				i++;
-				if(isSymbol(ch)){ //simbol bisa terdiri dari 2 karakter jadi harus dilakukan pengecekan
-					puts("2.1.1");
-					// getch();
-					int symbolId = checkSymbol(token.charvalue);
-					if(isSymbolFound(symbolId) ){ //kalau ada di daftar simbol maka token ditemukan
-						puts("2.1.1.1");
-						// getch();
-						value = symbolId;
-						if(symbolId != 5 && symbolId != 7 && symbolId != 10 && symbolId != 13 && symbolId != 18){
-							found(new_token);
-						}
-					}else{ //jika tidak, yang dimasukkan tadi kosongkan, dan kursor file dimundurkan satu langkah
-						puts("2.1.1.2");
-						// getch();
-						setNull(token.charvalue[i]);
-						i--;
-						// fseek(infile, -1, SEEK_CUR);
-					}
-				}
-			}
-		}else if(i > 0){ //supaya gak tiap whitespace melakukan pengecekan lagi
-			puts(" whitespace");
-			// getch();
-			if(token.attr == SYMBOL){
-				puts("1");
-				// getch();
-				int symbolId = checkSymbol(token.charvalue);
-				if(symbolId != 5 && symbolId != 7 && symbolId != 10 && symbolId != 13 && symbolId != 18){ //bukan =,.,<,>,:
-					puts("1.1");
-					// getch();
-					found(new_token);
-					value = symbolId;
-				} 
-			}else if(token.attr == NUMBER){
-				puts("2");
-				// getch();
-				found(new_token);
-			}else{
-				puts("3");
-				// getch();
-				int rwordId = checkRWord(token.charvalue);
-				if(isRWordFound(rwordId)){ //mengecek apakah rword
-					puts("3.1");
-					// getch();
-					token.attr = RWORD;
-					value = rwordId;
-				}else if (isIdentifier(token.charvalue)){ // mengecek apakah identifier
-					puts("3.2");
-					// getch();
-					token.attr = IDENTIFIER;
-				}
-				found(new_token); //token ditemukan
-			}
-		}else{
-			puts("C");
-			// getch(); 
+	static char tempVal;
+	char c1 = fgetc(infile);
+	if(charIsWhiteSpace(c1)){
+		getToken();
+	}else if(charIsSymbol(c1)){
+		char chtemp[2];
+        token.charvalue[0] = c1;
+		token.attr = SYMBOL;
+		char c2 =  fgetc(infile);
+		if(c2 == '=' || c2 == '>' || c2 == '.'){
+			chtemp[0] = c1;
+			chtemp[1] = c2;
 		}
-	}while(!isEOF(ch) && !isFound(new_token)); //loop selama bukan eof  dan token tidak ditemukan
-	setValueToken(); //mengisi value token
+		tempVal = checkSymbol(chtemp);
+		if(stringIsSymbol(tempVal)){
+			copyString(token.charvalue, chtemp);
+			token.value = tempVal;
+		}else{
+			token.value = checkSymbol(token.charvalue);
+			if(!charIsEOF(c2)){
+            	moveFileCursor(infile, -1);
+			}
+		}
+		return c1;
+	}else{
+		do{
+			if(charIsEOF(c1)){
+				return c1;
+			}else{
+				token.charvalue[i] = tolower(c1);
+				i++;
+				c1 = fgetc(infile);
+			}
+		}while(charIsAlphabet(c1) || charIsNumber(c1));
+
+		int j = 0, isNumber = TRUE;
+		while(!varIsNull(token.charvalue[j]) && isNumber == TRUE){
+			if(!isdigit(token.charvalue[j])){
+				isNumber = FALSE;
+			}
+			j++;
+		}
+
+		if(isNumber == TRUE){
+			token.attr = NUMBER;
+			tempVal = token.value = atoi(token.charvalue);
+		}else{
+			tempVal = checkRWord(token.charvalue);
+			if(stringIsRword(tempVal)){
+				token.attr = RWORD;
+			}else{
+				token.attr = IDENTIFIER;
+			}
+			token.value = tempVal;
+		}
+        moveFileCursor(infile, -1);
+		return c1;
+	}
 }

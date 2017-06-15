@@ -18,7 +18,6 @@ typedef struct _token{
 #define DIV			1	
 #define DO			2
 #define ELSE		3
-
 #define END			4
 #define IF			5
 #define PROCEDURE	6
@@ -58,19 +57,26 @@ typedef struct _token{
 #define FALSE 0
 #define RWORDS_SIZE 15
 #define SYMBOLS_SIZE 19
-#define isStringEqual(A, B) (strcmp((A), (B)) == 0)
-#define isStringContain(A, B) (strstr((A), (B)) != NULL)
-#define isAlphabet(X) (((X) >= 'a' && (X) <= 'z') || ((X) >= 'A' && (X) <= 'Z'))
-#define isNumber(X)  ((X) >= '0' && (X) <= '9')
-#define isWhiteSpace(X) ((X) == ' ' || (X) == '\n' || (X) == '\t')
-#define isSymbol(X) (!isNumber((X)) && !isAlphabet((X)) && !isWhiteSpace((X)))
-#define setNull(X) (X) = '\0'
-#define isEOF(X) ((X) == EOF)
-#define isSymbolFound(X) ((X) < SYMBOLS_SIZE && (X) >= 0)
-#define isRWordFound(X) ((X) < RWORDS_SIZE && (X) >= 0)
+#define stringIsEqual(A, B) (strcmp((A), (B)) == 0)
+#define stringIsContain(A, B) (strstr((A), (B)) != NULL)
+#define charIsAlphabet(X) (((X) >= 'a' && (X) <= 'z') || ((X) >= 'A' && (X) <= 'Z'))
+#define charIsNumber(X)  ((X) >= '0' && (X) <= '9')
+#define charIsWhiteSpace(X) ((X) == ' ' || (X) == '\n' || (X) == '\t')
+#define charIsSymbol(X) (!charIsNumber((X)) && !charIsAlphabet((X)) && !charIsWhiteSpace((X)))
+#define charIsEOF(X) ((X) == EOF)
+#define setCharNull(X) (X) = '\0'
+#define setVarNull(X) (X) = NULL
+#define setStringNull(X, n) memset(X,'\0', n)
+#define stringIsSymbol(X) ((X) < SYMBOLS_SIZE && (X) >= 0)
+#define stringIsRword(X) ((X) < RWORDS_SIZE && (X) >= 0)
 #define copyString(A, B) strcpy(A, B)
-#define isFound(X) ((X) == TRUE)
-#define found(X) (X) = TRUE
-#define isNull(X) ((X) == '\0' || (X) == NULL)
-#define isIdentifier(X) (checkIdentifier(X) == TRUE)
-#define isStringEmpty(X) (strlen(X) == 0)
+#define varIsNull(X) ((X) == '\0' || (X) == NULL)
+#define stringIsEmpty(X) (strlen(X) == 0)
+#define moveFileCursor(F, X) fseek(F, X, SEEK_CUR)
+
+/* Prototype */
+int getToken(void);
+int checkRWord(char * chars);
+int checkSymbol(char * chars);
+void clearToken(void);
+void initToken(char * name);
