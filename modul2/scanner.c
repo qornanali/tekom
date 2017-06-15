@@ -51,7 +51,7 @@ void clearToken(void){
 int getToken(void){
 	clearToken();
 	int i = 0;
-	static char tempVal;
+	int tempVal;
 	char c1 = fgetc(infile);
 	if(charIsWhiteSpace(c1)){
 		getToken();
@@ -59,11 +59,14 @@ int getToken(void){
 		char chtemp[2];
         token.charvalue[0] = c1;
 		token.attr = SYMBOL;
-		char c2 =  fgetc(infile);
-		if(c2 == '=' || c2 == '>' || c2 == '.'){
-			chtemp[0] = c1;
-			chtemp[1] = c2;
-		}
+		char c2;
+		do{
+			c2 = fgetc(infile);
+			if(charIsSymbol(c2) && (c2 == '=' || c2 == '>' || c2 == '.')){
+				chtemp[0] = tolower(c1);
+				chtemp[1] = tolower(c2);
+			}
+		}while(!charIsSymbol(c2) && charIsWhiteSpace(c2));
 		tempVal = checkSymbol(chtemp);
 		if(stringIsSymbol(tempVal)){
 			copyString(token.charvalue, chtemp);

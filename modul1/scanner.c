@@ -8,73 +8,77 @@ Modified by : Ali Qornan Jaisyurrahman
 Date		: Fri May 19 2017
 */
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <stdio.h> 
+#include <stdlib.h> 
+#include <ctype.h> 
+#include <string.h> 
+#include <conio.h>
+
+#define TRUE 1
+#define FALSE 0
+#define RWORDS_SIZE 15
+#define SYMBOLS_SIZE 19
+#define stringIsEqual(A, B) (strcmp((A), (B)) == 0)
+#define stringIsContain(A, B) (strstr((A), (B)) != NULL)
+#define charIsAlphabet(X) (((X) >= 'a' && (X) <= 'z') || ((X) >= 'A' && (X) <= 'Z'))
+#define charIsNumber(X)  ((X) >= '0' && (X) <= '9')
+#define charIsWhiteSpace(X) ((X) == ' ' || (X) == '\n' || (X) == '\t')
+#define charIsSymbol(X) (!charIsNumber((X)) && !charIsAlphabet((X)) && !charIsWhiteSpace((X)))
+#define charIsEOF(X) ((X) == EOF)
+#define setCharNull(X) (X) = '\0'
+#define setVarNull(X) (X) = NULL
+#define setStringNull(X, n) memset(X,'\0', n)
+#define stringIsSymbol(X) ((X) < SYMBOLS_SIZE && (X) >= 0)
+#define stringIsRword(X) ((X) < RWORDS_SIZE && (X) >= 0)
+#define copyString(A, B) strcpy(A, B)
+#define varIsNull(X) ((X) == '\0' || (X) == NULL)
+#define stringIsEmpty(X) (strlen(X) == 0)
+#define moveFileCursor(F, X) fseek(F, X, SEEK_CUR)
 
 FILE * infile;
 char token[50];
 
-int get_token(void);
-void delete_token();
-void init_token(char *name);
+int getToken(void);
+void clearToken(void);
+void initToken(char *name);
 
 int main(int argc, char *argv[]){
-	init_token(argv[1]);
-	while(get_token() != EOF) printf("%s \n",token);
+	initToken(argv[1]);
+	while(getToken() != EOF) printf("%s \n",token);
 }
 
-void init_token(char *name){
+void clearToken(void){
+	setStringNull(token, 50);
+}
+
+void initToken(char *name){
 	if((infile = fopen(name, "r")) == NULL){
 		printf("Error : Can't open source code %s'");
 		exit(-1);
 	}else return;
 }
 
-int get_token(void){
-	int j;
-	for(j < 0; j < 50; j++){
-		token[j] = '\0';
+int getToken(void){
+	clearToken();
+	int i = 0;
+	int tempVal;
+	char c1 = fgetc(infile);
+	if(charIsWhiteSpace(c1)){
+		getToken();
+	}else if(charIsSymbol(c1)){
+        token[0] = c1;
+		return c1;
+	}else{
+		do{
+			if(charIsEOF(c1)){
+				return c1;
+			}else{
+				token[i] = tolower(c1);
+				i++;
+				c1 = fgetc(infile);
+			}
+		}while(charIsAlphabet(c1) || charIsNumber(c1));
+        moveFileCursor(infile, -1);
+		return c1;
 	}
-	int i;
-	int token_type = 0;
-	char ch;
-	i = 0;
-	do{
-		ch = (char) fgetc(infile);
-		if(ch == EOF){
-			printf("%s\n",token);
-			return EOF;
-		}else if((ch <= 'Z' && ch >= 'A') || (ch <= 'z' && ch >= 'a') || (ch <= '9' && ch >= '0')){
-				if(token_type == 2){
-					i = 0;
-				}
-				if(i > 0 && token_type != 1){
-					token_type = 0;
-					fseek(infile, -1, SEEK_CUR);
-				}else{
-					token_type = 1;
-					token[i] = ch;	
-					i++;
-				}	
-		}else if(ch == ' ' || ch == '\n' || ch == '\t'){
-			if(i > 0 && token_type != 2){
-				token_type = 0;
-			}else{
-				token_type = 2;	
-				i++;
-			}
-		}else{
-			if(token_type == 2){
-					i = 0;
-			}
-			if(i > 0 && token_type != 3){
-				token_type = 0;
-				fseek(infile, -1, SEEK_CUR);
-			}else{
-				token_type = 3;
-				token[i] = ch;	
-				i++;
-			}
-		} 
-	}while((ch != EOF) && token_type != 0);
 }

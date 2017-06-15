@@ -15,11 +15,11 @@ int t = 0;
 int main(int argc, char *argv[]){
     initToken(argv[1]);
 
-	// while(getToken() != EOF){
-	// 	test(FALSE);
-	// }
-    program();
-    printf("Congratulations: No error is found\n");
+	while(getToken() != EOF){
+		test(FALSE);
+	}
+    // program();
+    // printf("Congratulations: No error is found\n");
 }
 
 void program(void){
@@ -79,6 +79,8 @@ void outblock(void){
 		if(!tokenIsSemicolon(token)){
 			error(3, ";");
 		}
+
+		getToken();test(FALSE);
 	}
 
 	statement();
@@ -310,11 +312,14 @@ int getToken(void){
 		char chtemp[2];
         token.charvalue[0] = c1;
 		token.attr = SYMBOL;
-		char c2 =  fgetc(infile);
-		if(c2 == '=' || c2 == '>' || c2 == '.'){
-			chtemp[0] = c1;
-			chtemp[1] = c2;
-		}
+		char c2;
+		do{
+			c2 = fgetc(infile);
+			if(charIsSymbol(c2) && (c2 == '=' || c2 == '>' || c2 == '.')){
+				chtemp[0] = tolower(c1);
+				chtemp[1] = tolower(c2);
+			}
+		}while(!charIsSymbol(c2) && charIsWhiteSpace(c2));
 		tempVal = checkSymbol(chtemp);
 		if(stringIsSymbol(tempVal)){
 			copyString(token.charvalue, chtemp);
