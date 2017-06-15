@@ -40,10 +40,13 @@ void program(void){
         exit(-1);
 	}
 
+	// getToken();
+	// printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
+	// getch();
 	statement();
 
-	getToken();
-	printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
+	// getToken();
+	// printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
 	// getch();
 	if(!tokenIsPeriod(token)){
 		printf("Error : Symbol '.' is expected\n");
@@ -52,10 +55,9 @@ void program(void){
 }
 
 void statement(void){
-	printf("statement\n");
 	getToken();
 	printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
-	// getch();
+	printf("statement\n");
 	if(tokenIsBegin(token)){
 		do{
 			statement();
@@ -65,6 +67,9 @@ void statement(void){
 			printf("Error : Reserved Word 'end' is expected\n");
 			exit(-1);
 		}
+		
+		getToken();
+		printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
 	}else{
 		expression();
 	} 
@@ -76,7 +81,7 @@ void expression(void){
 		getToken();
 		printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
 		// getch();
-	} 
+	}
 	term();
 	while (tokenIsPlus(token) || tokenIsMinus(token)) {
 		getToken();

@@ -16,71 +16,83 @@ int main(int argc, char *argv[]){
 }
 
 void program(void){
-    getToken();
-    if (!tokenIsProgram(token)){
-        printf("Error : Reserved Word 'program' is expected\n");
+	getToken();
+	if(!tokenIsProgram(token)){
+		printf("Error : Reserved Word 'program' is expected\n");
         exit(-1);
-    }
+	}
 
-    getToken();
-    if (!tokenIsIdentifier(token)){
-        printf("Error : Identifier is expected after 'program' \n");
+	getToken();
+	if(!tokenIsIdentifier(token)){
+		printf("Error : Identifier is expected after 'program' \n");
         exit(-1);
-    }
+	}
 
-    getToken();
-    if (!tokenIsSemicolon(token)){
-        printf("Error : Symbol ';' is expected\n");
+	getToken();
+	if(!tokenIsSemicolon(token)){
+		printf("Error : Symbol ';' is expected\n");
         exit(-1);
-    }
+	}
 
-    getToken();
-    statement();
-	
-    getToken();
-    if (!tokenIsPeriod(token)){
-        printf("Error : Symbol '.' is expected\n");
+	statement();
+
+	if(!tokenIsPeriod(token)){
+		printf("Error : Symbol '.' is expected\n");
         exit(-1);
-    }
+	}
 }
 
 void statement(void){
-    if(tokenIsBegin(token)){
-		getToken();
-		statement();
-
-		getToken();
-		while(tokenIsSemicolon(token)){
-			getToken();
+	getToken();
+	if(tokenIsBegin(token)){
+		do{
 			statement();
-			getToken();
-		}
-		
+		}while(tokenIsSemicolon(token));
+
 		if(!tokenIsEnd(token)){
 			printf("Error : Reserved Word 'end' is expected\n");
 			exit(-1);
 		}
 		
-	}else if(tokenIsNumber(token)){
 		getToken();
-		
-		if(!tokenIsOperator(token)){
-			printf("Error : Reserved symbol 'operator' is expected\n");
-			exit(-1);
-		}
-		
-		getToken();
-		
-		if(!tokenIsNumber(token)){
-			printf("Error : Number is expected\n");
-			exit(-1);
-		}
 	}else{
-		printf("Error : Statement expected\n");
-		exit(-1);
+		expression();
+	} 
+}
+
+void expression(void){
+	if (tokenIsPlus(token) || tokenIsMinus(token)) getToken();
+	term();
+	while (tokenIsPlus(token) || tokenIsMinus(token)) {
+		getToken();
+		term();
 	}
 }
 
+void term(void){
+	factor();
+	while (tokenIsTimes(token) || tokenIsDiv(token)) {
+		getToken();
+		factor();
+	}
+}
+
+void factor(void){
+	if (tokenIsNumber(token)){
+		getToken();
+	} else if (tokenIsLParen(token)) {
+		getToken();
+		expression();
+		if (tokenIsRParen(token)) {
+			getToken();
+		} else error();
+	} else error();
+}
+
+void error(){
+	printf("Error : Number or Bracket expected\n");
+    exit(-1);
+}
 
 void initToken(char * name){
 	if((infile = fopen(name, "r")) == NULL){
