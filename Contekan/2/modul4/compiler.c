@@ -216,7 +216,8 @@ int isbalance () {
   }
  
   fseek(infile,0,SEEK_SET);
-  for (int i = 1; i <= 4; ++i)
+  int i;
+  for (i = 1; i <= 4; ++i)
   {
     get_token();
   }
