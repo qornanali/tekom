@@ -16,110 +16,111 @@ int main(int argc, char *argv[]){
 }
 
 void program(void){
-    getToken();
+	getToken();
 	printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
 	// getch();
-    if (!tokenIsProgram(token)){
-        printf("Error : Reserved Word 'program' is expected\n");
+	if(!tokenIsProgram(token)){
+		printf("Error : Reserved Word 'program' is expected\n");
         exit(-1);
-    }
+	}
 
-    getToken();
+	getToken();
 	printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
 	// getch();
-    if (!tokenIsIdentifier(token)){
-        printf("Error : Identifier is expected after 'program' \n");
+	if(!tokenIsIdentifier(token)){
+		printf("Error : Identifier is expected after 'program' \n");
         exit(-1);
-    }
+	}
 
-    getToken();
+	getToken();
 	printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
-    if (!tokenIsSemicolon(token)){
-        printf("Error : Symbol ';' is expected\n");
+	// getch();
+	if(!tokenIsSemicolon(token)){
+		printf("Error : Symbol ';' is expected\n");
         exit(-1);
-    }
+	}
 
-    getToken();
-    statement();
-	
-    getToken();
+	statement();
+
+	getToken();
 	printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
-    if (!tokenIsPeriod(token)){
-        printf("Error : Symbol '.' is expected\n");
+	// getch();
+	if(!tokenIsPeriod(token)){
+		printf("Error : Symbol '.' is expected\n");
         exit(-1);
-    }
+	}
 }
 
 void statement(void){
-    if(tokenIsBegin(token)){
-		getToken();
-		printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
-		statement();
-
-		getToken();
-		printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
-		while(tokenIsSemicolon(token)){
-			getToken();
-			printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
+	printf("statement\n");
+	getToken();
+	printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
+	// getch();
+	if(tokenIsBegin(token)){
+		do{
 			statement();
-			
-			getToken();
-			printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
-		}
-		
+		}while(tokenIsSemicolon(token));
+
 		if(!tokenIsEnd(token)){
 			printf("Error : Reserved Word 'end' is expected\n");
 			exit(-1);
 		}
-		
-	}else {
-		getToken();
-		printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
+	}else{
 		expression();
-	}
+	} 
 }
 
 void expression(void){
-	if(tokenIsPlus(token) || tokenIsMinus(token)){
+	printf("expression\n");
+	if (tokenIsPlus(token) || tokenIsMinus(token)) {
 		getToken();
 		printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
-	}
+		// getch();
+	} 
 	term();
-	while(tokenIsPlus(token) || tokenIsMinus(token)){
+	while (tokenIsPlus(token) || tokenIsMinus(token)) {
 		getToken();
 		printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
+		// getch();
 		term();
 	}
 }
 
 void term(void){
+	printf("term\n");
 	factor();
-	while(tokenIsTimes(token) || tokenIsDiv(token)){
+	while (tokenIsTimes(token) || tokenIsDiv(token)) {
 		getToken();
 		printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
+		// getch();
 		factor();
 	}
 }
 
 void factor(void){
-	if(tokenIsNumber(token)){
+	printf("factor\n");
+	if (tokenIsNumber(token)){
 		getToken();
 		printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
+		// getch();
 		return;
-	}else if(tokenIsLParen(token)){
+	} else if (tokenIsLParen(token)) {
 		getToken();
 		printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
+		// getch();
 		expression();
-		if(tokenIsRParen(token)){
+		if (tokenIsRParen(token)) {
 			getToken();
 			printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
+			// getch();
 			return;
-		}else error();
-	}
+		} else error();
+	} else error();
 }
 
 void error(){
-	
+	printf("Error : Number or Bracket expected\n");
+    exit(-1);
 }
 
 void initToken(char * name){
