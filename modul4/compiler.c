@@ -221,6 +221,7 @@ int getToken(void){
 		return c1;
 	}
 }
+
 void initToken(char * name){
 	if((infile = fopen(name, "r")) == NULL){
 		printf("Error : Can't open source code %s'");
@@ -260,13 +261,14 @@ int getToken(void){
 	if(charIsWhiteSpace(c1)){
 		getToken();
 	}else if(charIsSymbol(c1)){
-		char chtemp[2];
+		char chtemp[3];
         token.charvalue[0] = c1;
 		token.attr = SYMBOL;
 		char c2 =  fgetc(infile);
 		if(c2 == '=' || c2 == '>' || c2 == '.'){
 			chtemp[0] = c1;
 			chtemp[1] = c2;
+			chtemp[2] = '\0';
 		}
 		tempVal = checkSymbol(chtemp);
 		if(stringIsSymbol(tempVal)){
@@ -314,4 +316,3 @@ int getToken(void){
 		return c1;
 	}
 }
-

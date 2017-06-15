@@ -15,11 +15,11 @@ int t = 0;
 int main(int argc, char *argv[]){
     initToken(argv[1]);
 
-	while(getToken() != EOF){
-		test(FALSE);
-	}
-    // program();
-    // printf("Congratulations: No error is found\n");
+	// while(getToken() != EOF){
+	// 	test(FALSE);
+	// }
+    program();
+    printf("Congratulations: No error is found\n");
 }
 
 void program(void){
@@ -304,45 +304,34 @@ int getToken(void){
 	int i = 0;
 	static char tempVal;
 	char c1 = fgetc(infile);
-	printf("%c ",c1);
-	puts("gettoken");
 	if(charIsWhiteSpace(c1)){
-		puts("A");
 		getToken();
 	}else if(charIsSymbol(c1)){
-		puts("B");
-		char chtemp[2];
+		char chtemp[3];
         token.charvalue[0] = c1;
 		token.attr = SYMBOL;
 		char c2 =  fgetc(infile);
 		if(c2 == '=' || c2 == '>' || c2 == '.'){
-			puts("BA");
 			chtemp[0] = c1;
 			chtemp[1] = c2;
+			chtemp[2] = '\0';
 		}
 		tempVal = checkSymbol(chtemp);
 		if(stringIsSymbol(tempVal)){
-			puts("BB.1");
 			copyString(token.charvalue, chtemp);
 			token.value = tempVal;
 		}else{
-			puts("BB.2");
 			token.value = checkSymbol(token.charvalue);
 			if(!charIsEOF(c2)){
-				puts("BB.2A");
             	moveFileCursor(infile, -1);
 			}
 		}
 		return c1;
 	}else{
-		puts("C");
 		do{
-			puts("CA");
 			if(charIsEOF(c1)){
-				puts("CA.1");
 				return c1;
 			}else{
-				puts("CA.2");
 				token.charvalue[i] = tolower(c1);
 				i++;
 				c1 = fgetc(infile);
@@ -351,26 +340,20 @@ int getToken(void){
 
 		int j = 0, isNumber = TRUE;
 		while(!varIsNull(token.charvalue[j]) && isNumber == TRUE){
-			puts("CB");
 			if(!isdigit(token.charvalue[j])){
-				puts("CB.1");
 				isNumber = FALSE;
 			}
 			j++;
 		}
 
 		if(isNumber == TRUE){
-			puts("CC.1");
 			token.attr = NUMBER;
 			tempVal = token.value = atoi(token.charvalue);
 		}else{
-			puts("CC.2");
 			tempVal = checkRWord(token.charvalue);
 			if(stringIsRword(tempVal)){
-				puts("CC.3A1");
 				token.attr = RWORD;
 			}else{
-				puts("CC.3A2");
 				token.attr = IDENTIFIER;
 			}
 			token.value = tempVal;

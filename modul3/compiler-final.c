@@ -17,18 +17,23 @@ int main(int argc, char *argv[]){
 
 void program(void){
     getToken();
+	printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
+	// getch();
     if (!tokenIsProgram(token)){
         printf("Error : Reserved Word 'program' is expected\n");
         exit(-1);
     }
 
     getToken();
+	printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
+	// getch();
     if (!tokenIsIdentifier(token)){
         printf("Error : Identifier is expected after 'program' \n");
         exit(-1);
     }
 
     getToken();
+	printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
     if (!tokenIsSemicolon(token)){
         printf("Error : Symbol ';' is expected\n");
         exit(-1);
@@ -38,6 +43,7 @@ void program(void){
     statement();
 	
     getToken();
+	printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
     if (!tokenIsPeriod(token)){
         printf("Error : Symbol '.' is expected\n");
         exit(-1);
@@ -47,13 +53,18 @@ void program(void){
 void statement(void){
     if(tokenIsBegin(token)){
 		getToken();
+		printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
 		statement();
 
 		getToken();
+		printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
 		while(tokenIsSemicolon(token)){
 			getToken();
+			printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
 			statement();
+			
 			getToken();
+			printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
 		}
 		
 		if(!tokenIsEnd(token)){
@@ -63,6 +74,7 @@ void statement(void){
 		
 	}else if(tokenIsNumber(token)){
 		getToken();
+		printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
 		
 		if(!tokenIsOperator(token)){
 			printf("Error : Reserved symbol 'operator' is expected\n");
@@ -70,17 +82,17 @@ void statement(void){
 		}
 		
 		getToken();
+		printf("token %3d %3d %s \n", token.attr, token.value, token.charvalue);
 		
 		if(!tokenIsNumber(token)){
 			printf("Error : Number is expected\n");
 			exit(-1);
 		}
 	}else{
-		printf("Error : Statement expected\n");
+		printf("Error : Reserved word or number expected\n");
 		exit(-1);
 	}
 }
-
 
 void initToken(char * name){
 	if((infile = fopen(name, "r")) == NULL){
@@ -121,13 +133,14 @@ int getToken(void){
 	if(charIsWhiteSpace(c1)){
 		getToken();
 	}else if(charIsSymbol(c1)){
-		char chtemp[2];
+		char chtemp[3];
         token.charvalue[0] = c1;
 		token.attr = SYMBOL;
 		char c2 =  fgetc(infile);
 		if(c2 == '=' || c2 == '>' || c2 == '.'){
 			chtemp[0] = c1;
 			chtemp[1] = c2;
+			chtemp[2] = '\0';
 		}
 		tempVal = checkSymbol(chtemp);
 		if(stringIsSymbol(tempVal)){
