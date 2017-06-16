@@ -1,736 +1,471 @@
-/*
- File name : compiler.c
- Vers : 0.01a
- Written by : Setiadi Rachmat
- Date : Fri Aug 28 10:08:03 WIT 2009
- Modified by : Mochamad Sohibul Iman - 151511016 - 2A - D3 Teknik Informatika
-
-*/ 
-
-
-#include<stdio.h>
-#include<stdlib.h>
-#include<string.h>
-#include<ctype.h>
+#include <stdio.h> 
+#include <stdlib.h> 
+#include <ctype.h> 
+#include <string.h> 
+#include <conio.h>
 #include "scanner.h"
-#include "compiler.h"
-#include "stack.h"
+#include "compiler.h" 
 
+/* Global variable */
 token_t token;
-FILE *infile;
+FILE * infile;
 ListStack varTable;
 
+int t = 0; int c = 0;
 
-void program(void);
-void statement(void);
-void init_token(char *name);
-int get_token(void);
-void statement_list(); //gadipake
-void statement_arithmetic(); //gadipake
-void expression(void);
-void term(void);
-void factor(void);
-void error(int i);
-void condition();
-int paramlist();
-void outblock();
-void inblock();
-int isbalance();
-int count_begin=0;
-int balance=-1;
+int main(int argc, char *argv[]){
+	CreateListStack(&varTable);
+    initToken(argv[1]); 
+  	PrintInfoStack(varTable);
+	// while(!charIsEOF(getToken())){
+	// 	t++;
+	// 	printf("token#%d %3d %3d %s \n", t, token.attr, token.value, token.charvalue);
+	// }
 
-int main(int argc, char *argv[])
-{
-	int c=0;
-  CreateListStack(&varTable);
-  init_token(argv[1]);
-  program();
-  PrintInfoStack(varTable);
-  printf("Congratulations : No error is found\n");
-	return 0;
+    program();
+    printf("Congratulations: No error is found\n");
 }
 
-void program(void) 
-{
-	get_token();
-  /*start checking*/
-    printf("\n\nMASUK MODUL PROGRAM\n");
-    printf("CURRENT TOKEN : %s\n",token.charvalue);
-    printf("CHECKING IS PROGRAM\n");
-  /*end checking*/
-	if(!isprogram) 
-	{
-		printf("Error : Reserved Word 'program' is expected\n");
-		exit(-1);
+void program(void){
+	// printf("program\n");
+	getToken();t++;
+	if(!tokenIsProgram(token)){
+		error(1, "program");
 	}
 
-	get_token();
-  /*start checking*/
-    printf("CURRENT TOKEN : %s\n",token.charvalue);
-    printf("CHECKING IS IDENRIFIER\n");
-  /*end checking*/
-	if (!isidentifier)
-	{
-		printf("Error : Identifier is expected after 'program' \n");
-		exit(-1);
+	getToken();t++;
+	if(!tokenIsIdentifier(token)){
+		error(2, "program");
 	}
 
-	get_token();
-   /*start checking*/
-    printf("CURRENT TOKEN : %s\n",token.charvalue);
-    printf("CHECKING IS SEMICOLON\n");
-  /*end checking*/
-	if(!issemicolon)
-	{
-		printf("Error : Symbol ';' is expected\n");
-		exit(-1);
+	getToken();t++;
+	if(!tokenIsSemicolon(token)){
+		error(3, ";");
 	}
-	get_token();
-   /*start checking*/
-    printf("CURRENT TOKEN : %s\n",token.charvalue);
-    printf("CHECKING FROM PROGRAM To OUTBLOCK\n");
-  /*end checking*/
+
+	getToken();t++;
 	outblock();
-
-    /*start checking*/
-    printf("CURRENT TOKEN : %s\n",token.charvalue);
-    printf("CHECKING PERIOD\n");
-  /*end checking*/
-	if (!isperiod)
-	{
-		printf("Error : Symbol '.' is expected\n");
+	if(!tokenIsPeriod(token)){
+		error(3, ".");
 		exit(-1);
 	}
 }
 
+void outblock(void){
+	// printf("outblock\n");
+	infotype X;
 
-void statement ()
-{
-    /*start checking*/
-    printf("\n\nMASUK KE MODUL STATEMENT\n");
-    printf("CURRENT TOKEN : %s\n",token.charvalue);
-    printf("CHECKING IN STATEMENT : PILIH NODE\n");
-  /*end checking*/
-   if(isidentifier) {
+	if(!tokenIsVar(token)){
+		error(1, "var");
+	}
 
-     addressStack resultSearch= NULL;
-     int nparam=0;
-     resultSearch=search(varTable,token.charvalue);  
-     if(resultSearch == NULL) {
-        printf("Fatal : Syntax Error, Indentifier '%s' is undefined\n", token.charvalue);
-        printf("Fatal: Compilation Aborted\n");
-        exit(-1);
-     }
-      get_token();
-       /*start checking*/
-        printf("CURRENT TOKEN : %s\n",token.charvalue);
-        printf("CHECKING IN STATEMENT : ISBECOMENS BUKAN ?\n");
-      /*end checking*/
-      if(isbecomes) {
-            get_token();
-          /*start checking*/
-            printf("CURRENT TOKEN : %s\n",token.charvalue);
-            printf("CHECKING FROM STATEMENT to EXPRESSION\n");
-           /*end checking*/
-            expression();
-      }else {
-         /*start checking*/
-            printf("CURRENT TOKEN : %s\n",token.charvalue);
-            printf("CHECKING FROM STATEMENT to PARAMLIST\n");
-          /*end checking*/
-        nparam=paramlist();
-        if(nparam != resultSearch->info.nparam) {
-          if(nparam > resultSearch->info.nparam) {
-              printf("Fatal : Too Many Actual Parameters\n", token.charvalue);
-              printf("Fatal: Compilation Aborted\n");
-              exit(-1);
-          }else {
-              printf("Fatal : Not Enough Actual Parameters\n", token.charvalue);
-              printf("Fatal: Compilation Aborted\n");
-              exit(-1);
-          }
-        }
-      }
-   }else if(isbegin) {
-         do{
-              get_token();
-               /*start checking*/
-                printf("CURRENT TOKEN : %s\n",token.charvalue);
-                printf("CHECKING IN STATEMENT  -> BEGIN\n");
-              /*end checking*/
-              statement();
-               /*start checking*/
-                printf("CURRENT TOKEN : %s\n",token.charvalue);
-                printf("CHECKING AFTER STATEMENT  -> BEGIN\n");
-              /*end checking*/
-          }while(issemicolon);
-          if(!isend) {
-                printf("Fatal : Syntax Error, Reserved Word 'End' is expected, but %s found\n", token.charvalue);
-                printf("Fatal: Compilation Aborted\n");
-                exit(-1);
-          }
-          get_token();
-   }else if(iswhile) {
-          get_token();
-          condition();
-          if(!isdo) {
-              printf("Fatal : Syntax Error, Reserved Word 'do' is expected, but %s found\n", token.charvalue);
-              printf("Fatal: Compilation Aborted\n");
-              exit(-1);
-          }
-          get_token();
-          statement();
-   }else if(isif) {
-          get_token();
-          condition();
-          if(!isthen) {
-              printf("Fatal : Syntax Error, Reserved Word 'then' is expected, but %s found\n", token.charvalue);
-              printf("Fatal: Compilation Aborted\n");
-              exit(-1);
-          }
-          get_token();
-          statement();
-          if(iselse) {
-            get_token();
-            statement();
-          }
-   }else if(isread) {
-          get_token();
-          if(islparen) {
-              do {
-                  get_token();
-                  if(!isidentifier) {
-                      printf("Fatal : Syntax Error, Indentifier is expected, but %s found\n", token.charvalue);
-                      printf("Fatal: Compilation Aborted\n");
-                      exit(-1);
-                  }
-                  get_token();
-              }while(iscomma);
-              if(!isrparen) {
-                  printf("Fatal : Syntax Error, ')' is expected, but %s found\n", token.charvalue);
-                  printf("Fatal: Compilation Aborted\n");
-                  exit(-1);
-              }
-              get_token();
-          }else {
-              printf("Fatal : Syntax Error, '(' is expected, but %s found\n", token.charvalue);
-              printf("Fatal: Compilation Aborted\n");
-              exit(-1);
-          }
-   }else if(iswrite) {
-       get_token();
-          if(islparen) {
-              do {
-                  get_token();
-                  expression();
-              }while(iscomma);
-              if(!isrparen) {
-                  printf("Fatal : Syntax Error, ')' is expected, but %s found\n", token.charvalue);
-                  printf("Fatal: Compilation Aborted\n");
-                  exit(-1);
-              }
-              get_token();
-          }else {
-              printf("Fatal : Syntax Error, '(' is expected, but %s found\n", token.charvalue);
-              printf("Fatal: Compilation Aborted\n");
-              exit(-1);
-          }
+	do{
+		getToken();t++;
+		if(!tokenIsIdentifier(token)){
+			error(2, "var");
+		}
 
-   }else {
-        if(isend) {
-             return;
-        }else {
-               printf("Fatal : Syntax Error,statement expected, but %s found\n", token.charvalue);
-              printf("Fatal: Compilation Aborted\n");
-              exit(-1);
-        }
-            
-   }   
-         
-}
+		copyString(X.key, token.charvalue);
+		X.type = VGLOBAL;
+		X.address= 0;
+		X.nparam = 0;
+		Push(&varTable,&X);
 
+		getToken();t++;
+	}while(tokenIsComma(token));
 
+	if(!tokenIsSemicolon(token)){
+		error(3, ";");
+	}
+	
+	getToken();t++;
+	while(tokenIsProcedure(token)){
+		getToken();t++;
+		if(!tokenIsIdentifier(token)){
+			error(2, "procedure");
+		}
 
-void outblock() 
-{
-    infotype X;
-   /*start checking*/
-    printf("\n\nMASUK KE MODUL OUTBLOCK\n");
-     printf("CURRENT TOKEN : %s\n",token.charvalue);
-     printf("CHECKING VAR in OUTBLOCK\n");
-  /*end checking*/
-   if(!isvar) {
-   	 printf("Fatal : Syntax Error, Reserved Word 'var' is expected\n");
-     printf("Fatal: Compilation Aborted\n");
-     exit(-1);
-   }
-   /*start */
-      printf("TEST BENAR - INI VAR\n");
-  /*end checking*/
-   do{
-      get_token();
-       /*start checking*/
-                printf("CURRENT TOKEN : %s\n",token.charvalue);
-                printf("CHECKING IDENTIFIER in OUTBLOCK dalam DO-WHILE\n");
-      /*end checking*/
-     if(!isidentifier) {
-        printf("Fatal : Syntax Error, Identifier is expected, but %s found\n", token.charvalue);
-        printf("Fatal: Compilation Aborted\n");
-        exit(-1);
-     }
-     //PUSH IDENTIFIER GLOBAL
-      strcpy(X.key, token.charvalue);
-      X.type=VGLOBAL;
-      X.address=0;
-      X.nparam=0;
-      Push(&varTable,&X);
+		copyString(X.key, token.charvalue);
+		X.type = PNAME;
+		X.address= 0;
+		X.nparam = 0;
+		Push(&varTable,&X);
+		
+		getToken();t++;
+		inblock();
 
-      /*start */
-      printf("TEST BENAR - INI IDENTIFIER\n");
-  /*end checking*/
-     get_token();
-      /*start checking*/
-                printf("CURRENT TOKEN : %s\n",token.charvalue);
-                printf("ULANGI LAGI NGGA VARNYA ? sama dengan COMMA ?\n");
-     /*end checking*/
-   }while(iscomma);
-
-     /*start checking*/
-                printf("CURRENT TOKEN : %s\n",token.charvalue);
-                printf("CHECKING SEMICOLON BENER?\n");
-     /*end checking*/
-   if(!issemicolon) {
-        printf("Fatal : Syntax Error, ';' expected, but %s found\n", token.charvalue);
-        printf("Fatal: Compilation Aborted\n");
-        exit(-1);
-   }
-   get_token();
-    /*start checking*/
-                printf("CURRENT TOKEN : %s\n",token.charvalue);
-                printf("CHECKING MASUK KE PENGULANGAN PROCEDURE NGGA ?\n");
-     /*end checking*/
-
-   while(isprocedure) {
-        get_token();
-        /*start checking*/
-                printf("CURRENT TOKEN : %s\n",token.charvalue);
-                printf("CHECKING MASUK KE PENGULANGAN-> CEK INDENTIFIER ?\n");
-     /*end checking*/
-        if(!isidentifier) {
-            printf("Fatal : Syntax Error, Identifier is expected, but %s found\n", token.charvalue);
-            printf("Fatal: Compilation Aborted\n");
-            exit(-1);
-        }
-
-          strcpy(X.key, token.charvalue);
-          X.type=PNAME;
-          X.address=0;
-          X.nparam=0;
-          Push(&varTable,&X);
-
-        get_token();
-          /*start checking*/
-                printf("CURRENT TOKEN : %s\n",token.charvalue);
-                printf("MASUK KE INBLOCK\n");
-          /*end checking*/
-        inblock();
         PopVarLocal(&varTable);
-       
-            /*start checking*/
-                printf("CURRENT TOKEN : %s\n",token.charvalue);
-                printf("BARU KELUAR DARI INBLOCK CEK SEMICOLON\n");
-     /*end checking*/
-        
-        if(!issemicolon) {
-            printf("Fatal : Syntax Error, ';' expected, but %s found\n", token.charvalue);
-            printf("Fatal: Compilation Aborted\n");
-            exit(-1);
-        }
-        get_token();
-         /*start checking*/
-                printf("CURRENT TOKEN : %s\n",token.charvalue);
-                printf("MASUK KE STATEMENT diAKHIR OUTBLOCK\n");
-     /*end checking*/
-   }
 
-   statement();
+		if(!tokenIsSemicolon(token)){
+			error(3, ";");
+		}
+
+		getToken();t++;
+	}
+
+	statement();
 }
 
-void inblock() {
+void inblock(void){
+	// printf("inblock\n");
     infotype X;
-   addressStack addrProcedure = varTable.TOP;
+    addressStack addrProcedure = varTable.TOP;
     int nparam=0;
-    if(islparen) {
-     
-      do{
-        get_token();
-        if(!isidentifier) {
-              printf("Fatal : Syntax Error, Identifier is expected, but %s found\n", token.charvalue);
-              printf("Fatal: Compilation Aborted\n");
-              exit(-1);
-        }
-          strcpy(X.key, token.charvalue);
-          X.type=VLOCAL;
-          X.address=0;
-           X.nparam=0;
-           nparam++;
-          Push(&varTable,&X);
-        get_token();
-      }while(iscomma);
+	if(tokenIsLParen(token)){
+		do{
+			getToken();t++;
+			if(!tokenIsIdentifier(token)){
+				error(2, "(");
+			}
+            copyString(X.key, token.charvalue);
+            X.type=VLOCAL;
+            X.address=0;
+            X.nparam=0;
+            nparam++;
+            Push(&varTable,&X);
+			getToken();t++;
+		}while(tokenIsComma(token));
 
-      if(!isrparen) {
-            printf("Fatal : Syntax Error, ')' expected, but %s found\n", token.charvalue);
-            printf("Fatal: Compilation Aborted\n");
-            exit(-1);
-      }
-      addrProcedure->info.nparam=nparam;
-      get_token();
-    }
-    if(!issemicolon) {
-        printf("Fatal : Syntax Error, ';' expected, but %s found\n", token.charvalue);
-        printf("Fatal: Compilation Aborted\n");
-        exit(-478);
-    }
+		if(!tokenIsRParen(token)){
+			error(3, ")");
+		}
+		
+        addrProcedure->info.nparam=nparam;
+		getToken();t++;
+	}
+	
+	if(!tokenIsSemicolon(token)){
+		error(3, ";");
+	}
 
-    get_token();
-    if(isvar) {
-       X.nparam=0;
-     do{
-          get_token();
-        if(!isidentifier) {
-            printf("Fatal : Syntax Error, Identifier is expected, but %s found\n", token.charvalue);
-            printf("Fatal: Compilation Aborted\n");
-            exit(-488);
-        }
-          strcpy(X.key, token.charvalue);
-          X.type=VLOCAL;
-          X.address=0;
-          X.nparam=0;
-          Push(&varTable,&X);
+	getToken();t++;
+	if(tokenIsVar(token)){
+        X.nparam=0;
+		do{
+			getToken();t++;
+			if(!tokenIsIdentifier(token)){
+				error(2, "var");
+			}
+            copyString(X.key, token.charvalue);
+            X.type=VLOCAL;
+            X.address=0;
+            X.nparam=0;
+            Push(&varTable,&X);
 
-        get_token();
-     }while(iscomma);
-      if(!issemicolon) {
-            printf("Fatal : Syntax Error, ';' expected, but %s found\n", token.charvalue);
-            printf("Fatal: Compilation Aborted\n");
-            exit(-495);
-      }
-       get_token(); 
-    }
-    
-    statement();
+			getToken();t++;
+		}while(tokenIsComma(token));
+
+		if(!tokenIsSemicolon(token)){
+			error(3, ";");
+		}
+
+		getToken();t++;
+	}
+
+	statement();
 }
 
-void expression()
-{
-  /*start checking*/
-                printf("CURRENT TOKEN : %s\n",token.charvalue);
-                printf("INI AWAL MODUL EXPRESSION\n");
-     /*end checking*/
-  if(isplus || isminus) 
-  {
-    /*start checking*/
-                printf("CURRENT TOKEN : %s\n",token.charvalue);
-                printf("INI + || -\n");
-     /*end checking*/
-    get_token();
-    /*start checking*/
-                printf("CURRENT TOKEN : %s\n",token.charvalue);
-                printf("MASUK KE MODUL TERM\n");
-     /*end checking*/
-  }
-
-  term();
- /*start checking*/
-                printf("CURRENT TOKEN : %s\n",token.charvalue);
-                printf("DIULANG KARENA + || - ?? \n");
-     /*end checking*/
-  while(isplus || isminus)
-  {
-   
-    get_token();
-    term();
-   
-  }
-}
-
-void term() 
-{
-   /*start checking*/
-                printf("\n\nMasuk Modul Term\n");   
-                printf("CURRENT TOKEN : %s\n",token.charvalue);
-                 printf("Masuk Modul Term to Factor\n"); 
-     /*end checking*/
-  factor();
-   /*start checking*/
-               printf("CURRENT TOKEN : %s\n",token.charvalue);
-                printf("CEK PENGULANGAN MODUL FACTOR\n");   
-               
-     /*end checking*/
-  while(istimes || isdiv)
-  {
-    get_token();
-    factor();
-  }
-}
-
-
-void factor()
-{
-  /*start checking*/
-                printf("\n\nIni Awal Modul Factor\n");   
-                printf("CURRENT TOKEN : %s\n",token.charvalue);
-      
-     /*end checking*/
-
-  if(isnumbr)
-  {
-    get_token();
-    return;
-  }else if (isidentifier){
-    if(search(varTable,token.charvalue) == NULL) {
-        printf("Fatal : Syntax Error, Indentifier '%s' is undefined\n", token.charvalue);
-        printf("Fatal: Compilation Aborted\n");
-        exit(-1);
-     }
-     /*start checking*/
-                printf("CURRENT TOKEN : %s\n",token.charvalue);
-                printf("DAPAT IDENTIFIER \n");
-     /*end checking*/
-      get_token();
-      return;
-  } else if(islparen) 
-        {
-       /*start checking*/
-                printf("CURRENT TOKEN : %s\n",token.charvalue);
-                printf("DAPAT LPAREN ( \n");
-     /*end checking*/
-         
-          get_token();
-            printf("CURRENT TOKEN : %s\n",token.charvalue);
-           printf("DAPAT LPAREN (  MASUK LAGI EXPRESSION\n");
-          expression();
-     /*start checking*/
-                printf("CURRENT TOKEN : %s\n",token.charvalue);
-                printf("CHECKING RPARENT IN EXPRESSION\n");
-     /*end checking*/
-          if(isrparen)
-          {
-            get_token();
-            return;
-          }
-          else{
-                error(2);
-              }
-        }
-        else
-            {
-              error(1);
-            }
-}
-
-void error(int i)
-{
-  switch(i)
-  {
-    case 1: printf("Fatal: Syntax Error '(' expected but '%s'found\n", token.charvalue);
-             printf("Fatal: Compilation Aborted\n");
-             exit(-582);
-        break;
-    case 2:  printf("Fatal: Syntax Error ')' expected but '%s'found\n", token.charvalue);
-              printf("Fatal: Compilation Aborted\n");
-              exit(-586);
-        break;
-  }
-}
-
-int paramlist() 
-{ 
-    int nparam=0;
-       /*start checking*/
-                printf("AWAL MASUK PARAMLIST\n");
-                printf("CURRENT TOKEN : %s\n",token.charvalue);
-                printf("CHECK LPAREN BUKAN\n");
-     /*end checking*/
-  if(islparen) {
-      nparam=1;
-      get_token();
-      expression();
-      while(iscomma) {
-        get_token();
-        nparam++;
-        expression();
-      }
-      if(!isrparen) {
-             printf("Fatal: Syntax Error, ')' expected but '%s'found\n", token.charvalue);
-              printf("Fatal: Compilation Aborted\n");
-              exit(-1);
-      }
-      get_token();
-      return nparam;
-  }
-  return 0;
-}
-
-void condition() {
-  expression();
-  if(iseql == 0 && isnoeql == 0  && isgrtrthan == 0 && islessthan == 0 && isgrtreql == 0 && islesseql == 0) {
-             printf("Fatal: Syntax Error, 'condition' expected but '%s'found\n", token.charvalue);
-              printf("Fatal: Compilation Aborted\n");
-              exit(-1);
-  }
-  get_token();
-  expression();
-   /*start checking*/
-                printf("CURRENT TOKEN : %s\n",token.charvalue);
-                printf("KELUAR DARI CONDITION\n");
-     /*end checking*/
-}
-
-void init_token (char *name)
-{
-	if((infile = fopen(name,"r")) == NULL) 
-	{
-		printf("Error Cant't Open Source Code %s\n", name);
-		exit(-1);
-	} else return;
-
-}
-
-int get_token(void) 
-{
-    int i=0;
-    char c;
-    char c2;
-    static char temp;
-  	memset(token.charvalue,'\0',50);
-    token.value=0;
-    token.attr=0;
-  	c=getc(infile);
-    if (isspace(c) || iscntrl(c) || isblank(c)) {
-       get_token();
-  	} 
-    else if(ispunct(c)) {
-          token.attr = SYMBOL;
-          c2 = getc(infile);
-          if((c2 == '=' || c2 == '>' || c2 == '.') && (c == '<' || c=='>' || c =='.' || c == ':')) {
-               token.charvalue[0]= tolower(c);
-               token.charvalue[1]= tolower(c2);
-               if(strcmp(token.charvalue, ":=") == 0){
-                temp=token.value=BECOMES;
-               }else if (strcmp(token.charvalue, "<=")==0) {
-                temp=token.value=LESSEQL;
-               }else if(strcmp(token.charvalue, "<>") == 0) {
-                temp=token.value=NOTEQL;
-               }else if(strcmp(token.charvalue, ">=")== 0) {
-                temp=token.value=GRTREQL;
-               }else if (strcmp(token.charvalue,"..")==0) {
-                temp=token.value=INTERVAL;
-               }
-               return c;
-          }else {
-            token.charvalue[0]= tolower(c);
-            if(c2 != EOF) {
-              fseek(infile, -1, SEEK_CUR);
-            }
-            switch(c) {
-              case '+' : temp=token.value = PLUS;
-                         break;
-              case '-' : temp=token.value = MINUS;
-                         break;
-              case '*' : temp=token.value = TIMES;
-                         break;
-              case '(' : temp=token.value = LPAREN;
-                         break;
-              case ')' : temp=token.value = RPAREN;
-                         break;
-              case '=' : temp=token.value = EQL;
-                         break;
-              case ',' : temp=token.value = COMMA;
-                         break;
-              case '.' : temp=token.value = PERIOD;
-                         break;
-              case ';' : temp=token.value = SEMICOLON;
-                         break;
-              case '<' : temp=token.value = LESSTHAN;
-                         break;
-              case '>' : temp=token.value = GRTRTHAN;
-                         break;
-              case '[' : temp=token.value = LBRACE;
-                         break;
-              case ']' : temp=token.value = RBRACE;
-                         break;
-              case ':' : temp=token.value = COLON;
-                         break;
-              default:
-                        temp=token.value=-1;
-                        break;
-            }
-            return c;
-          }
-    }
-  	else {
-  			
-      	  		do{
-        	  			if(c == EOF) {
-        			  		return EOF;
-        			  	}else {
-        			  		token.charvalue[i] = tolower(c);
-        			  		i++;
-        			  		c= getc(infile);
-        			  	}
-      	  		}while(isalnum(c));
-
-              int index=0;
-              int isnumber=1;
-              while(token.charvalue[index] != '\0') {
-                if(!isdigit(token.charvalue[index])) {
-                  isnumber=0;
+void statement(void){
+	// printf("statement\n");
+	if(tokenIsIdentifier(token)){
+		addressStack resultSearch = NULL;
+		int nparam=0;
+		resultSearch = search(varTable,token.charvalue);  
+		
+		getToken();t++;
+		if(tokenIsBecomes(token)){
+          	getToken(); t++;
+			expression();
+		}else {
+			nparam = paramList();
+            if(nparam != resultSearch->info.nparam){
+                if(nparam > resultSearch->info.nparam){
+                    error(0, "1");
+                }else{
+                    error(0, "2");
                 }
-                index++;
-              }
+            }
+		}
+	}else if(tokenIsBegin(token)){
+		do{
+			getToken();t++;
+			statement();
+		}while(tokenIsSemicolon(token));
 
-              if(isnumber == 1) {
-                 token.attr=NUMBER;
-                 temp=token.value= atoi(token.charvalue); 
-              }
-              else {
-                    token.attr=RWORD;
-                    if (strcmp(token.charvalue, "begin")==0) {
-                    temp=token.value=0;
-                   }else if(strcmp(token.charvalue, "div") == 0) {  
-                    temp=token.value=1;
-                   }else if(strcmp(token.charvalue, "do")== 0) {
-                    temp=token.value=2;
-                   }else if (strcmp(token.charvalue,"else")==0) {
-                    temp=token.value=3;
-                   }else if (strcmp(token.charvalue, "end")==0) {
-                    temp=token.value=4;
-                   }else if(strcmp(token.charvalue, "if") == 0) {
-                    temp=token.value=5;
-                   }else if(strcmp(token.charvalue, "procedure")== 0) {
-                    temp=token.value=6;
-                   }else if (strcmp(token.charvalue,"program")==0) {
-                    temp=token.value=7;
-                   }else if (strcmp(token.charvalue, "then")==0) {
-                    temp=token.value=8;
-                   }else if(strcmp(token.charvalue, "var") == 0) {
-                    temp=token.value=9;
-                   }else if(strcmp(token.charvalue, "while")== 0) {
-                    temp=token.value=10;
-                   }else if (strcmp(token.charvalue,"read")==0) {
-                    temp=token.value=11;
-                   }else if (strcmp(token.charvalue, "write")==0) {
-                    temp=token.value=12;
-                   }else if(strcmp(token.charvalue, "forward") == 0) {
-                    temp=token.value=13;
-                   }else if(strcmp(token.charvalue, "function")== 0) {
-                    temp=token.value=14;
-                   }else {
-                      token.attr=IDENTIFIER;
-                      token.value=temp;
-                   }
-              } 
-    			fseek(infile, -1, SEEK_CUR);
-  	}
+		if(!tokenIsEnd(token)){
+			error(1, "end");
+		}
+
+        getToken();t++;
+	}else if(tokenIsWhile(token)){
+		getToken();t++;
+		condition();
+
+		if(!tokenIsDo(token)){
+			error(1, "do");
+		}
+		
+		getToken();t++;
+		statement();
+	}else if(tokenIsIf(token)){
+		getToken();t++;
+		condition();
+	
+		if(!tokenIsThen(token)){
+			error(1, "then");
+		}
+
+		getToken();t++;
+		statement();
+
+		if(tokenIsElse(token)){
+			getToken();t++;
+			statement();
+		}
+	}else if(tokenIsRead(token)){
+		getToken();t++;
+		if(tokenIsLParen(token)){
+			do{
+				getToken();t++;
+				if(!tokenIsIdentifier(token)){
+					error(2, "read");
+				}
+				getToken();t++;
+			}while(tokenIsComma(token));
+
+			if(!tokenIsRParen(token)){
+				error(3, ")");
+			}
+
+			getToken();t++;
+		}else{
+			error(3, "(");
+		}
+	}else if(tokenIsWrite(token)){
+		getToken();t++;
+		if(tokenIsLParen(token)){
+			do{
+				getToken();
+				expression();
+			}while(tokenIsComma(token));
+
+			if(!tokenIsRParen(token)){
+				error(3, ")");
+			}
+
+			getToken();t++;
+		}else{
+			error(3, "(");
+		}
+	}else if(!tokenIsEnd(token)){
+		error(2, "end");
+	}
+}
+
+void expression(void){
+	// printf("expression\n");
+	if(tokenIsPlus(token) || tokenIsMinus(token)){
+		getToken();t++;
+	}
+
+	term();
+	while(tokenIsPlus(token) || tokenIsMinus(token)){
+		getToken();t++;
+		term();
+	}
+}
+
+void condition(void){
+	// printf("condition\n");
+	expression();
+
+	if(tokenIsEql(token) || tokenIsNotEql(token) ||
+	tokenIsLessThan(token) || tokenIsGrtrThan(token) ||
+	tokenIsLessEql(token) || tokenIsGrtrEql(token)){
+		getToken();t++;
+		expression();
+	}else{
+		error(0,"condition");
+	}
+}
+
+int paramList(void){
+	// printf("paramlist\n");
+    int nparam = 0;
+	if(tokenIsLParen(token)){ 
+        nparam = 1;
+		getToken();t++;
+		expression();
+		while(tokenIsComma(token)) {
+			getToken();t++;
+            nparam++;
+			expression();
+		}
+		if (tokenIsRParen(token)) {
+			error(3, ")");
+		}
+		getToken();t++;
+        return nparam;
+	}
+    return 0;
+}
+
+void term(void){
+	// printf("term\n");
+	factor(); 
+	while(tokenIsTimes(token) || tokenIsDiv(token)){
+		getToken();t++;
+		factor();
+	}
+}
+
+void factor(void){
+	// printf("factor\n");
+	if(tokenIsNumber(token)){
+		getToken();t++;
+	}else if(tokenIsIdentifier(token)){
+         if(varIsNull(search(varTable,token.charvalue))) {
+             error(2, "number");
+         }
+         get_token();
+    }else if (tokenIsLParen(token)) {
+		getToken();t++;
+		expression();
+		
+		if (tokenIsRParen(token)) {
+			getToken();t++;
+		} else {
+			error(3, ")");
+		} 
+	} else{
+		error(0, "Number or Identifier or '('");
+	} 
+}
+
+void error(int errId, char * chars){
+	printf("token#%d %3d %3d %s \n", t, token.attr, token.value, token.charvalue);
+	switch(errId){
+		case 0 :
+			printf("Error : %s is expected", chars);
+		break;
+		case 1 :
+			printf("Error : Reserved Word '%s' is expected", chars);
+		break;
+		case 2 :
+			printf("Error : Identifier is expected after '%s'", chars);
+		break;
+		case 3 :
+			printf("Error : Symbol '%s' is expected", chars);
+		break;
+		case 4 :
+			printf("Error : Can't open %s", chars);
+		break;
+		default :
+			printf("Error : Unindentified");
+		break;
+	}
+	printf(" on %d\n", c);
+    exit(-1);
+}
+
+void initToken(char * name){
+	if((infile = fopen(name, "r")) == NULL){
+		printf("Error : Can't open source code %s'");
+		exit(-1);
+	}else return;
+}
+
+int checkRWord(char * chars){
+	char rwords[RWORDS_SIZE][10] = {"begin","div","do", "else", "end", "if", "procedure", "program", "then", "var", "while", "read", "write", "forward", "function"};
+	int i = 0;
+	while(i < RWORDS_SIZE && !stringIsEqual(rwords[i], chars)){  
+		i++;
+	}
+	return i; 
+}
+
+int checkSymbol(char * chars){
+	char symbols[SYMBOLS_SIZE][3] = {"+", "-", "*", "(", ")", "=", ",", ".", ";", ":=", "<", "<=", "<>", ">", ">=", "[", "]", "..", ":"};
+	int i = 0; 
+	while(i < SYMBOLS_SIZE && !stringIsEqual(symbols[i], chars)){ 
+		i++;
+	}
+	return i; 
+}
+
+void clearToken(void){
+	setStringNull(token.charvalue, 50);
+	setVarNull(token.attr);
+	setVarNull(token.value);
+}
+
+int getToken(void){
+	clearToken();
+	int i = 0;
+	int tempVal;
+	char c1 = fgetc(infile);
+	c++;
+	if(charIsWhiteSpace(c1)){
+		getToken();t++;
+	}else if(charIsSymbol(c1)){
+		char chtemp[3];
+		setStringNull(chtemp, 3);
+        token.charvalue[0] = c1;
+		token.attr = SYMBOL;
+		char c2;
+		do{
+			c2 = fgetc(infile);
+			c++;
+			if(charIsSymbol(c2) && (c2 == '=' || c2 == '>' || c2 == '.')){
+				chtemp[0] = c1;
+				chtemp[1] = c2;
+				chtemp[2] = '\0';	
+			}
+		}while(!charIsSymbol(c2) && !charIsNumber(c2) && !charIsAlphabet(c2));
+		tempVal = checkSymbol(chtemp);
+		if(stringIsSymbol(tempVal)){
+			copyString(token.charvalue, chtemp);
+			token.value = tempVal;
+		}else{
+			token.value = checkSymbol(token.charvalue);
+			if(!charIsEOF(c2)){
+				c--;
+            	moveFileCursor(infile, -1);
+			}
+		}
+		return c1;
+	}else{
+		do{
+			if(charIsEOF(c1)){
+				return c1;
+			}else{
+				token.charvalue[i] = tolower(c1);
+				i++;
+				c1 = fgetc(infile);
+			}
+		}while(charIsAlphabet(c1) || charIsNumber(c1));
+
+		int j = 0, isNumber = TRUE;
+		while(!varIsNull(token.charvalue[j]) && isNumber == TRUE){
+			if(!isdigit(token.charvalue[j])){
+				isNumber = FALSE;
+			}
+			j++;
+		}
+
+		if(isNumber == TRUE){
+			token.attr = NUMBER;
+			tempVal = token.value = atoi(token.charvalue);
+		}else{
+			tempVal = checkRWord(token.charvalue);
+			if(stringIsRword(tempVal)){
+				token.attr = RWORD;
+			}else{
+				token.attr = IDENTIFIER;
+			}
+			token.value = tempVal;
+		}
+        moveFileCursor(infile, -1);
+		return c1;
+	}
 }

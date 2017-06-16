@@ -1,41 +1,95 @@
-/*
- File name : scanner.c
- Vers : 0.01a
- Written by : Setiadi Rachmat
- Date : Fri Aug 28 10:08:03 WIT 2009
- Modified by : Mochamad Sohibul Iman - 151511016 - 2A-D3 Teknik Informatika
- Date : Sunday, March 19, 2017 WIB
-*/ 
-#define isprogram			(token.attr == RWORD && token.value == PROGRAM)
-#define isbegin				(token.attr == RWORD && token.value == BEGIN)
-#define isend				(token.attr == RWORD && token.value == END)
-#define isvar               (token.attr == RWORD && token.value == VAR)
-#define isprocedure         (token.attr == RWORD && token.value == PROCEDURE)
-#define iswhile             (token.attr == RWORD && token.value == WHILE)
-#define isif                (token.attr == RWORD && token.value == IF)
-#define isthen              (token.attr == RWORD && token.value == THEN)
-#define iselse              (token.attr == RWORD && token.value == ELSE)
-#define isdo                (token.attr == RWORD && token.value == DO)
-#define isread              (token.attr == RWORD && token.value == READ)
-#define iswrite             (token.attr == RWORD && token.value == WRITE)
 
-#define isidentifier 		(token.attr == IDENTIFIER)
-#define isnumbr				(token.attr == NUMBER) 
+/* token type */
 
-#define issemicolon			(token.attr == SYMBOL && token.value == SEMICOLON)
-#define isperiod			(token.attr == SYMBOL &&  token.value == PERIOD)
-#define iscomma             (token.attr == SYMBOL && token.value  == COMMA )
-#define isbecomes           (token.attr == SYMBOL && token.value == BECOMES)
-#define iseql               (token.attr == SYMBOL && token.value == EQL)
-#define isnoeql             (token.attr == SYMBOL && token.value == NOTEQL)
-#define islessthan          (token.attr == SYMBOL && token.value == LESSTHAN)
-#define isgrtrthan          (token.attr == SYMBOL && token.value == GRTRTHAN)
-#define isgrtreql           (token.attr == SYMBOL && token.value == GRTREQL)
-#define islesseql           (token.attr == SYMBOL && token.value == LESSEQL)
+#define ALPHABET 	0
+#define IDENTIFIER 	1
+#define NUMBER 		2
+#define RWORD 		3
+#define SYMBOL 		4
+#define WHITESPACE	5
 
-#define isplus				(token.attr == SYMBOL && token.value == PLUS)
-#define isminus				(token.attr == SYMBOL && token.value == MINUS)
-#define istimes				(token.attr == SYMBOL && token.value == TIMES)
-#define isdiv				(token.attr == RWORD  && token.value ==DIV)
-#define islparen			(token.attr == SYMBOL && token.value == LPAREN)
-#define isrparen			(token.attr == SYMBOL && token.value == RPAREN)
+/* RESERVED WORD DEFINITION */
+#define BEGIN		0
+#define DIV			1	
+#define DO			2
+#define ELSE		3
+#define END			4
+#define IF			5
+#define PROCEDURE	6
+#define PROGRAM		7
+#define THEN		8
+#define	VAR			9
+#define	WHILE		10
+#define READ		11
+#define WRITE		12
+#define FORWARD		13
+#define FUNCTION	14
+
+/* symbol definition */
+
+#define PLUS		0 	/* + */
+#define MINUS		1	/* - */
+#define TIMES		2	/* * */
+#define LPAREN		3	/* ( */
+#define RPAREN		4	/* ) */
+#define EQL			5	/* = */
+#define COMMA		6	/* , */
+#define PERIOD		7	/* . */
+#define SEMICOLON	8 	/* ; */
+#define BECOMES		9	/* := */
+#define	LESSTHAN	10  /* < */
+#define LESSEQL		11	/* <= */ 
+#define	NOTEQL		12	/* <> */
+#define	GRTRTHAN	13	/* > */
+#define GRTREQL		14	/* >= */
+#define LBRACE		15	/* [  */
+#define RBRACE		16	/* ]  */
+#define INTERVAL	17	/* .. */
+#define COLON		18	/* : */
+
+#define tokenIsRword(X) (X.attr == RWORD)
+#define tokenIsIdentifier(X) (X.attr == IDENTIFIER)
+#define tokenIsNumber(X) (X.attr == NUMBER)
+#define tokenIsSymbol(X) (X.attr == SYMBOL)
+#define tokenIsProgram(X) (tokenIsRword(X) && X.value == PROGRAM)
+#define tokenIsBegin(X) (tokenIsRword(X)&& X.value == BEGIN)
+#define tokenIsEnd(X) (tokenIsRword(X) && X.value == END)
+#define tokenIsDiv(X) (tokenIsRword(X) && token.value == DIV) 
+#define tokenIsVar(X) (tokenIsRword(X) && token.value == VAR) 
+#define tokenIsWhile(X) (tokenIsRword(X) && token.value == WHILE) 
+#define tokenIsDo(X) (tokenIsRword(X) && token.value == DO) 
+#define tokenIsIf(X) (tokenIsRword(X) && token.value == IF) 
+#define tokenIsThen(X) (tokenIsRword(X) && token.value == THEN) 
+#define tokenIsElse(X) (tokenIsRword(X) && token.value == ELSE) 
+#define tokenIsProcedure(X) (tokenIsRword(X) && token.value == PROCEDURE) 
+#define tokenIsRead(X) (tokenIsRword(X) && token.value == READ) 
+#define tokenIsWrite(X) (tokenIsRword(X) && token.value == WRITE) 
+#define tokenIsSemicolon(X) (tokenIsSymbol(X) && X.value == SEMICOLON)
+#define tokenIsPeriod(X) (tokenIsSymbol(X) && X.value == PERIOD) 
+#define tokenIsPlus(X) (tokenIsSymbol(X) && X.value == PLUS)
+#define tokenIsMinus(X) (tokenIsSymbol(X) && X.value == MINUS)
+#define tokenIsTimes(X) (tokenIsSymbol(X) && X.value == TIMES)
+#define tokenIsLParen(X) (tokenIsSymbol(X) && X.value == LPAREN)
+#define tokenIsRParen(X) (tokenIsSymbol(X) && X.value == RPAREN)
+#define tokenIsComma(X) (tokenIsSymbol(X) && X.value == COMMA)
+#define tokenIsBecomes(X) (tokenIsSymbol(X) && X.value == BECOMES)
+#define tokenIsEql(X) (tokenIsSymbol(X) && X.value == EQL)
+#define tokenIsNotEql(X) (tokenIsSymbol(X) && X.value == NOTEQL)
+#define tokenIsLessThan(X) (tokenIsSymbol(X) && X.value == LESSTHAN)
+#define tokenIsGrtrThan(X) (tokenIsSymbol(X) && X.value == GRTRTHAN)
+#define tokenIsLessEql(X) (tokenIsSymbol(X) && X.value == LESSEQL)
+#define tokenIsGrtrEql(X) (tokenIsSymbol(X) && X.value == GRTREQL)
+#define tokenIsOperator(X) (tokenIsPlus(X) || tokenIsMinus(X) || tokenIsTimes(X))
+
+/* Prototype */
+void initToken(char * name);
+void program(void);
+void outblock(void);
+void inblock(void);
+void statement(void);
+void expression(void);
+void condition(void);
+int paramList(void);
+void term(void);
+void factor(void);
+void error(int errId, char * chars);
