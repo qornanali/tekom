@@ -179,23 +179,23 @@ void statement(void){
 		getToken();t++;
 		if(tokenIsLParen(token)){
 			do{
-				getToken();
+				getToken();t++;
 				if(!tokenIsIdentifier(token)){
 					error(2, "read");
 				}
-				getToken();
+				getToken();t++;
 			}while(tokenIsComma(token));
 
 			if(!tokenIsRParen(token)){
 				error(3, ")");
 			}
 
-			getToken();
+			getToken();t++;
 		}else{
 			error(3, "(");
 		}
 	}else if(tokenIsWrite(token)){
-		getToken();
+		getToken();t++;
 		if(tokenIsLParen(token)){
 			do{
 				getToken();
@@ -206,7 +206,7 @@ void statement(void){
 				error(3, ")");
 			}
 
-			getToken();
+			getToken();t++;
 		}else{
 			error(3, "(");
 		}
@@ -349,7 +349,7 @@ int getToken(void){
 	char c1 = fgetc(infile);
 	c++;
 	if(charIsWhiteSpace(c1)){
-		getToken();
+		getToken();t++;
 	}else if(charIsSymbol(c1)){
 		char chtemp[3];
 		setStringNull(chtemp, 3);
