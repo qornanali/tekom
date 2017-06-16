@@ -61,7 +61,6 @@ void statement(void){
 }
 
 void expression(void){
-	printf("expression\n");
 	if (tokenIsPlus(token) || tokenIsMinus(token)) {
 		getToken();
 	}
@@ -73,7 +72,6 @@ void expression(void){
 }
 
 void term(void){
-	printf("term\n");
 	factor();
 	while (tokenIsTimes(token) || tokenIsDiv(token)) {
 		getToken();
@@ -82,7 +80,6 @@ void term(void){
 }
 
 void factor(void){
-	printf("factor\n");
 	if (tokenIsNumber(token)){
 		getToken();
 		return;

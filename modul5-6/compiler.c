@@ -5,12 +5,10 @@
 #include <conio.h>
 #include "scanner.h"
 #include "compiler.h" 
-#include "stack.h"
 
 /* Global variable */
 token_t token;
 FILE * infile;
-ListStack varTable;
 
 
 int t = 0; int c = 0;
