@@ -93,4 +93,3 @@ void paramList(void);
 void term(void);
 void factor(void);
 void error(int errId, char * chars);
-void procedureOrStatement(void);

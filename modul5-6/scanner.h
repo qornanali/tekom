@@ -30,4 +30,3 @@ int getToken(void);
 int checkRWord(char * chars);
 int checkSymbol(char * chars);
 void clearToken(void);
-void test(int pause);

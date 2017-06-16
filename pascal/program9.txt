@@ -2,6 +2,6 @@ program example51;
 var i,j,k; 
 begin 
    i : = 20; 
-   j:= 40; 
-   k< =(30 + i) * (80 - j div 4) 
+   j := 40; 
+   k <= (30 + i) * (80 - j div 4) 
 end.
