@@ -88,7 +88,7 @@ void inblock(void);
 void statement(void);
 void expression(void);
 void condition(void);
-void paramList(void);
+int paramList(void);
 void term(void);
 void factor(void);
 void error(int errId, char * chars);

@@ -14,8 +14,11 @@
 token_t token;
 FILE * infile;
 int t = 0, c = 0, rwordValue;
+ListStack stack;
 
 int main(int argc, char *argv[]){
+	CreateListStack(&stack);
+
     initToken(argv[1]);
     program();
     printf("Success : Compilation completed with no error(s)\n");
@@ -230,16 +233,19 @@ void condition(void){
 	}
 }
 
-void paramList(void){
+int paramList(void){
+	int i = 0;
 	if(tokenIsLParen(token)){
 		do{
 			getToken();printToken(t, token);
 			expression();
+			i++;
 		}while(tokenIsComma(token));
 		rparen();
 
 		getToken();printToken(t, token);
 	}
+	return i;
 }
 
 void term(void){
@@ -452,6 +458,7 @@ void Pop (ListStack *L)
 
 void PrintInfoStack (ListStack L)
 {
+	int i = 0;
  addressStack P;
  if (L.TOP == Nil)
  {
@@ -469,12 +476,11 @@ void PrintInfoStack (ListStack L)
 				 }
 				 else 
 					 {
-						 printf ("KEY : %s\n", P->info.key);
-						 printf ("TYPE : %d\n", P->info.type);
-						  printf ("Address : %d\n", P->info.address); 
-						  printf ("NPARAM : %d\n", P->info.nparam);
+						 printf("no : %d ; key : %s\n", i, P->info.key);
+						 printf ("type : %d ; address : %d ; nparam : %d\n", P->info.type, P->info.address, P->info.nparam);
 						  printf("\n");
 						 P = P->next;
+						 i++;
 					 }
 			}
 	 }
