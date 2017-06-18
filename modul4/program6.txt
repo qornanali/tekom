@@ -1,2 +1,2 @@
-Program example41;
+program example41;
   321.

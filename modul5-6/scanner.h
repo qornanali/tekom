@@ -25,6 +25,7 @@ typedef struct _token{
 #define varIsNull(X) ((X) == '\0' || (X) == NULL)
 #define stringIsEmpty(X) (strlen(X) == 0)
 #define moveFileCursor(F, X) fseek(F, X, SEEK_CUR)
+#define printToken(I, X) printf("token#%d %3d %3d %s \n", I, X.attr, X.value, X.charvalue)
 
 int getToken(void);
 int checkRWord(char * chars);

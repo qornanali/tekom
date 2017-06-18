@@ -1,9 +1,0 @@
-program example81;
-var a,b,c;
-    function add(x,y);
-    add := a+b;
-begin
-    read(a,b);
-    a := add(a,c);
-    write(a,b,c)
-end.

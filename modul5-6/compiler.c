@@ -9,285 +9,253 @@
 /* Global variable */
 token_t token;
 FILE * infile;
-
-
-int t = 0; int c = 0;
+int t = 0, c = 0, rwordValue;
 
 int main(int argc, char *argv[]){
     initToken(argv[1]);
-
-	// while(!charIsEOF(getToken())){
-	// 	t++;
-	// 	printf("token#%d %3d %3d %s \n", t, token.attr, token.value, token.charvalue);
-	// }
-
     program();
-    printf("Congratulations: No error is found\n");
+    printf("Success : Compilation completed with no error(s)\n");
 }
 
 void program(void){
-	// printf("program\n");
-	getToken();t++;
+	getToken();printToken(t, token);
 	if(!tokenIsProgram(token)){
 		error(1, "program");
 	}
 
-	getToken();t++;
-	if(!tokenIsIdentifier(token)){
-		error(2, "program");
-	}
+	getToken();printToken(t, token);
+	identifier("program");
 
-	getToken();t++;
-	if(!tokenIsSemicolon(token)){
-		error(3, ";");
-	}
+	getToken();printToken(t, token);
+	semicolon();
 
-	getToken();t++;
+	getToken();printToken(t, token);
 	outblock();
+
 	if(!tokenIsPeriod(token)){
 		error(3, ".");
 		exit(-1);
 	}
 }
 
+void identifier(char * chars){
+	if(!tokenIsIdentifier(token)){
+		error(2, chars);
+	}
+}
+
+void semicolon(void){
+	if(!tokenIsSemicolon(token)){
+		error(3, ";");
+	}
+}
+
+void end(void){
+	if(!tokenIsEnd(token)){
+		error(1, "end");
+	}
+}
+
+void rparen(void){
+
+}
+
 void outblock(void){
-	// printf("outblock\n");
 	if(!tokenIsVar(token)){
 		error(1, "var");
 	}
 
 	do{
-		getToken();t++;
-		if(!tokenIsIdentifier(token)){
-			error(2, "var");
-		}
-		getToken();t++;
+		getToken();printToken(t, token);
+		identifier("var");
+
+		getToken();printToken(t, token);
 	}while(tokenIsComma(token));
 
-	if(!tokenIsSemicolon(token)){
-		error(3, ";");
-	}
+	semicolon();
 	
-	getToken();t++;
+	getToken();printToken(t, token);
 	while(tokenIsProcedure(token)){
-		getToken();t++;
-		if(!tokenIsIdentifier(token)){
-			error(2, "procedure");
-		}
+		getToken();printToken(t, token);
+		identifier("procedure");
 		
-		getToken();t++;
+		getToken();printToken(t, token);
 		inblock();
 
-		if(!tokenIsSemicolon(token)){
-			error(3, ";");
-		}
+		semicolon();
 
-		getToken();t++;
+		getToken();printToken(t, token);
 	}
 
 	statement();
 }
 
 void inblock(void){
-	// printf("inblock\n");
 	if(tokenIsLParen(token)){
 		do{
-			getToken();t++;
-			if(!tokenIsIdentifier(token)){
-				error(2, "(");
-			}
-			getToken();t++;
+			getToken();printToken(t, token);
+			identifier("(");
+			getToken();printToken(t, token);
 		}while(tokenIsComma(token));
-
-		if(!tokenIsRParen(token)){
-			error(3, ")");
-		}
+		rparen();
 		
-		getToken();t++;
+		getToken();printToken(t, token);
 	}
 	
-	if(!tokenIsSemicolon(token)){
-		error(3, ";");
-	}
+	semicolon();
 
-	getToken();t++;
+	getToken();printToken(t, token);
 	if(tokenIsVar(token)){
 		do{
-			getToken();t++;
-			if(!tokenIsIdentifier(token)){
-				error(2, "var");
-			}
-			getToken();t++;
+			getToken();printToken(t, token);
+			identifier("var");
+
+			getToken();printToken(t, token);
 		}while(tokenIsComma(token));
 
-		if(!tokenIsSemicolon(token)){
-			error(3, ";");
-		}
+		semicolon();
 
-		getToken();t++;
+		getToken();printToken(t, token);
 	}
 
 	statement();
 }
 
 void statement(void){
-	// printf("statement\n");
 	if(tokenIsIdentifier(token)){
-		getToken();t++;
+		getToken();printToken(t, token);
 		if(tokenIsBecomes(token)){
-          	getToken(); t++;
+          	getToken();printToken(t, token); t++;
 			expression();
 		}else {
 			paramList();
 		}
 	}else if(tokenIsBegin(token)){
 		do{
-			getToken();t++;
+			getToken();printToken(t, token);
 			statement();
 		}while(tokenIsSemicolon(token));
 
-		if(!tokenIsEnd(token)){
-			error(1, "end");
-		}
+		end();
 
-        getToken();t++;
+        getToken();printToken(t, token);
 	}else if(tokenIsWhile(token)){
-		getToken();t++;
+		getToken();printToken(t, token);
 		condition();
 
 		if(!tokenIsDo(token)){
 			error(1, "do");
 		}
 		
-		getToken();t++;
+		getToken();printToken(t, token);
 		statement();
 	}else if(tokenIsIf(token)){
-		getToken();t++;
+		getToken();printToken(t, token);
 		condition();
 	
 		if(!tokenIsThen(token)){
 			error(1, "then");
 		}
 
-		getToken();t++;
+		getToken();printToken(t, token);
 		statement();
 
 		if(tokenIsElse(token)){
-			getToken();t++;
+			getToken();printToken(t, token);
 			statement();
 		}
 	}else if(tokenIsRead(token)){
-		getToken();t++;
+		getToken();printToken(t, token);
 		if(tokenIsLParen(token)){
 			do{
-				getToken();t++;
-				if(!tokenIsIdentifier(token)){
-					error(2, "read");
-				}
-				getToken();t++;
+				getToken();printToken(t, token);
+				identifier("(");
+
+				getToken();printToken(t, token);
 			}while(tokenIsComma(token));
+			rparen();
 
-			if(!tokenIsRParen(token)){
-				error(3, ")");
-			}
-
-			getToken();t++;
+			getToken();printToken(t, token);
 		}else{
 			error(3, "(");
 		}
 	}else if(tokenIsWrite(token)){
-		getToken();t++;
+		getToken();printToken(t, token);
 		if(tokenIsLParen(token)){
 			do{
-				getToken();
+				getToken();printToken(t, token);
 				expression();
 			}while(tokenIsComma(token));
+			rparen();
 
-			if(!tokenIsRParen(token)){
-				error(3, ")");
-			}
-
-			getToken();t++;
+			getToken();printToken(t, token);
 		}else{
 			error(3, "(");
 		}
-	}else if(!tokenIsEnd(token)){
-		error(2, "end");
+	}else {
+		end();
 	}
 }
 
 void expression(void){
-	// printf("expression\n");
 	if(tokenIsPlus(token) || tokenIsMinus(token)){
-		getToken();t++;
+		getToken();printToken(t, token);
 	}
 
 	term();
 	while(tokenIsPlus(token) || tokenIsMinus(token)){
-		getToken();t++;
+		getToken();printToken(t, token);
 		term();
 	}
 }
 
 void condition(void){
-	// printf("condition\n");
 	expression();
 
 	if(tokenIsEql(token) || tokenIsNotEql(token) ||
 	tokenIsLessThan(token) || tokenIsGrtrThan(token) ||
 	tokenIsLessEql(token) || tokenIsGrtrEql(token)){
-		getToken();t++;
+		getToken();printToken(t, token);
 		expression();
 	}else{
-		error(0,"condition");
+		error(0,"Condition");
 	}
 }
 
 void paramList(void){
-	// printf("paramlist\n");
 	if(tokenIsLParen(token)){
-		getToken();t++;
-		expression();
-		while(tokenIsComma(token)) {
-			getToken();t++;
+		do{
+			getToken();printToken(t, token);
 			expression();
-		}
-		if (tokenIsRParen(token)) {
-			error(3, ")");
-		}
-		getToken();t++;
+		}while(tokenIsComma(token));
+		rparen();
+
+		getToken();printToken(t, token);
 	}
 }
 
 void term(void){
-	// printf("term\n");
 	factor(); 
 	while(tokenIsTimes(token) || tokenIsDiv(token)){
-		getToken();t++;
+		getToken();printToken(t, token);
 		factor();
 	}
 }
 
 void factor(void){
-	// printf("factor\n");
-	if(tokenIsNumber(token) || tokenIsIdentifier(token)){
-		getToken();t++;
-	}else if (tokenIsLParen(token)) {
-		getToken();t++;
+	if (tokenIsLParen(token)) {
+		getToken();printToken(t, token);
 		expression();
 		
-		if (tokenIsRParen(token)) {
-			getToken();t++;
-		} else {
-			error(3, ")");
-		} 
-	} else{
-		error(0, "Number or Identifier or '('");
-	} 
+		rparen();
+	} else if(!tokenIsNumber(token) && !tokenIsIdentifier(token)){
+		error(0, "Factor");
+	}
+	getToken();printToken(t, token);
 }
 
+
 void error(int errId, char * chars){
-	printf("token#%d %3d %3d %s \n", t, token.attr, token.value, token.charvalue);
 	switch(errId){
 		case 0 :
 			printf("Error : %s is expected", chars);
@@ -304,6 +272,9 @@ void error(int errId, char * chars){
 		case 4 :
 			printf("Error : Can't open %s", chars);
 		break;
+		case 5 :
+			printf("Error : Operator is expected after Number", chars);
+		break;
 		default :
 			printf("Error : Unindentified");
 		break;
@@ -314,8 +285,7 @@ void error(int errId, char * chars){
 
 void initToken(char * name){
 	if((infile = fopen(name, "r")) == NULL){
-		printf("Error : Can't open source code %s'");
-		exit(-1);
+		error(4, name);
 	}else return;
 }
 
@@ -339,21 +309,17 @@ int checkSymbol(char * chars){
 
 void clearToken(void){
 	setStringNull(token.charvalue, 50);
-	setVarNull(token.attr);
-	setVarNull(token.value);
 }
 
 int getToken(void){
 	clearToken();
-	int i = 0;
 	int tempVal;
 	char c1 = fgetc(infile);
 	c++;
 	if(charIsWhiteSpace(c1)){
-		getToken();t++;
+		getToken();
 	}else if(charIsSymbol(c1)){
 		char chtemp[3];
-		setStringNull(chtemp, 3);
         token.charvalue[0] = c1;
 		token.attr = SYMBOL;
 		char c2;
@@ -363,29 +329,32 @@ int getToken(void){
 			if(charIsSymbol(c2) && (c2 == '=' || c2 == '>' || c2 == '.')){
 				chtemp[0] = c1;
 				chtemp[1] = c2;
-				chtemp[2] = '\0';	
+				setCharNull(chtemp[2]);
 			}
-		}while(!charIsSymbol(c2) && !charIsNumber(c2) && !charIsAlphabet(c2));
-		tempVal = checkSymbol(chtemp);
-		if(stringIsSymbol(tempVal)){
+		}while(!charIsSymbol(c2) && charIsWhiteSpace(c2));
+		if(stringIsSymbol(tempVal = checkSymbol(chtemp))){
 			copyString(token.charvalue, chtemp);
 			token.value = tempVal;
 		}else{
 			token.value = checkSymbol(token.charvalue);
 			if(!charIsEOF(c2)){
-				c--;
             	moveFileCursor(infile, -1);
+				c--;
 			}
 		}
+		setStringNull(chtemp, 3);
+		t++;
 		return c1;
 	}else{
+		int i = 0;
 		do{
 			if(charIsEOF(c1)){
 				return c1;
 			}else{
-				token.charvalue[i] = tolower(c1);
+				token.charvalue[i] = c1;
 				i++;
 				c1 = fgetc(infile);
+				c++;
 			}
 		}while(charIsAlphabet(c1) || charIsNumber(c1));
 
@@ -399,17 +368,20 @@ int getToken(void){
 
 		if(isNumber == TRUE){
 			token.attr = NUMBER;
-			tempVal = token.value = atoi(token.charvalue);
+			token.value = atoi(token.charvalue);
 		}else{
-			tempVal = checkRWord(token.charvalue);
-			if(stringIsRword(tempVal)){
-				token.attr = RWORD;
+			token.value = checkRWord(token.charvalue);
+			if(stringIsRword(token.value)){
+				rwordValue = token.value;
+				token.attr  = RWORD;
 			}else{
+				token.value = rwordValue;
 				token.attr = IDENTIFIER;
 			}
-			token.value = tempVal;
 		}
         moveFileCursor(infile, -1);
+		c--;
+		t++;
 		return c1;
 	}
 }

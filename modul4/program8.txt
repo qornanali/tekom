@@ -1,4 +1,4 @@
-Program example43;
-Begin
+program example43;
+begin
    -(1+(-2))
- End.
+ end.

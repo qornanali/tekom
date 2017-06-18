@@ -9,10 +9,12 @@
 token_t token;
 FILE * infile;
 
+int t = 0, rwordValue;
+
 int main(int argc, char *argv[]){
 	initToken(argv[1]);
 	while(getToken() != EOF) {
-		printf("%3d %3d %s \n", token.attr, token.value, token.charvalue);
+		printf("token #%d %3d %3d %s \n", t, token.attr, token.value, token.charvalue);
 	} 	
 	return 0;
 }
@@ -44,31 +46,28 @@ int checkSymbol(char * chars){
 
 void clearToken(void){
 	setStringNull(token.charvalue, 50);
-	setVarNull(token.attr);
-	setVarNull(token.value);
 }
 
 int getToken(void){
 	clearToken();
-	int i = 0;
 	int tempVal;
 	char c1 = fgetc(infile);
 	if(charIsWhiteSpace(c1)){
 		getToken();
 	}else if(charIsSymbol(c1)){
-		char chtemp[2];
+		char chtemp[3];
         token.charvalue[0] = c1;
 		token.attr = SYMBOL;
 		char c2;
 		do{
 			c2 = fgetc(infile);
 			if(charIsSymbol(c2) && (c2 == '=' || c2 == '>' || c2 == '.')){
-				chtemp[0] = tolower(c1);
-				chtemp[1] = tolower(c2);
+				chtemp[0] = c1;
+				chtemp[1] = c2;
+				setCharNull(chtemp[2]);
 			}
 		}while(!charIsSymbol(c2) && charIsWhiteSpace(c2));
-		tempVal = checkSymbol(chtemp);
-		if(stringIsSymbol(tempVal)){
+		if(stringIsSymbol(tempVal = checkSymbol(chtemp))){
 			copyString(token.charvalue, chtemp);
 			token.value = tempVal;
 		}else{
@@ -77,13 +76,16 @@ int getToken(void){
             	moveFileCursor(infile, -1);
 			}
 		}
+		setStringNull(chtemp, 3);
+		t++;
 		return c1;
 	}else{
+		int i = 0;
 		do{
 			if(charIsEOF(c1)){
 				return c1;
 			}else{
-				token.charvalue[i] = tolower(c1);
+				token.charvalue[i] = c1;
 				i++;
 				c1 = fgetc(infile);
 			}
@@ -99,17 +101,19 @@ int getToken(void){
 
 		if(isNumber == TRUE){
 			token.attr = NUMBER;
-			tempVal = token.value = atoi(token.charvalue);
+			token.value = atoi(token.charvalue);
 		}else{
-			tempVal = checkRWord(token.charvalue);
-			if(stringIsRword(tempVal)){
-				token.attr = RWORD;
+			token.value = checkRWord(token.charvalue);
+			if(stringIsRword(token.value)){
+				rwordValue = token.value;
+				token.attr  = RWORD;
 			}else{
+				token.value = rwordValue;
 				token.attr = IDENTIFIER;
 			}
-			token.value = tempVal;
 		}
         moveFileCursor(infile, -1);
+		t++;
 		return c1;
 	}
 }

@@ -1,6 +1,6 @@
 program example12;
-Begin
+begin
 	100 + 21;
 	30 - 643;
 	10 * 32
-End.
+end.

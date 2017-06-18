@@ -1,6 +1,6 @@
-Program example42;
-Begin
+program example42;
+begin
    376 + 4 * 6;
    (4+2)*8;
    10 * 32
-End.
+end.

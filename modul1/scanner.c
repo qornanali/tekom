@@ -42,9 +42,11 @@ int getToken(void);
 void clearToken(void);
 void initToken(char *name);
 
+int t = 0;
+
 int main(int argc, char *argv[]){
 	initToken(argv[1]);
-	while(getToken() != EOF) printf("%s \n",token);
+	while(getToken() != EOF) printf("token #%d %s \n",t, token);
 }
 
 void clearToken(void){
@@ -67,18 +69,20 @@ int getToken(void){
 		getToken();
 	}else if(charIsSymbol(c1)){
         token[0] = c1;
+		t++;
 		return c1;
 	}else{
 		do{
 			if(charIsEOF(c1)){
 				return c1;
 			}else{
-				token[i] = tolower(c1);
+				token[i] = c1;
 				i++;
 				c1 = fgetc(infile);
 			}
 		}while(charIsAlphabet(c1) || charIsNumber(c1));
         moveFileCursor(infile, -1);
+		t++;
 		return c1;
 	}
 }
