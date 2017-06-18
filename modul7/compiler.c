@@ -6,9 +6,9 @@
 #include <limits.h>
 #include <malloc.h>
 #include <stdbool.h>
+#include "stack.h"
 #include "scanner.h"
 #include "compiler.h" 
-#include "stack.h"
 
 /* MAIN */
 token_t token;
@@ -24,7 +24,26 @@ int main(int argc, char *argv[]){
     printf("Success : Compilation completed with no error(s)\n");
 }
 
+
+
 /* COMPILER */
+
+void pushTokenToStack(char type, int addr, int nparam){
+	printf("\nPushing item to stack\n");
+	infotype info;
+	copyString(info.key, token.charvalue);
+	info.address = addr;
+	info.nparam = nparam;
+	info.type = type;
+	Push(&stack, &info);
+	PrintInfoStack(stack);
+}
+
+void popTokenFromStack(void){
+	printf("\nPopping item from stack\n");
+	Pop(&stack);
+	PrintInfoStack(stack);
+}
 
 void program(void){
 	getToken();printToken(t, token);
@@ -71,15 +90,22 @@ void rparen(void){
 	}
 }
 
+addressStack declaredIdentifier(void){
+	addressStack pSearch = search(stack, token.charvalue);
+	if(varIsNull(pSearch)){
+		error(6, token.charvalue);
+	}
+	return pSearch;
+}
+
 void outblock(void){
 	if(!tokenIsVar(token)){
 		error(1, "var");
 	}
-
 	do{
 		getToken();printToken(t, token);
 		identifier("var");
-
+		pushTokenToStack(VGLOBAL, 0, 0);
 		getToken();printToken(t, token);
 	}while(tokenIsComma(token));
 
@@ -89,9 +115,11 @@ void outblock(void){
 	while(tokenIsProcedure(token)){
 		getToken();printToken(t, token);
 		identifier("procedure");
-		
+		pushTokenToStack(PNAME, 0, 0);
+
 		getToken();printToken(t, token);
 		inblock();
+		popTokenFromStack();
 
 		semicolon();
 
@@ -102,10 +130,15 @@ void outblock(void){
 }
 
 void inblock(void){
+	addressStack pProcedure = stack.TOP;
 	if(tokenIsLParen(token)){
 		do{
 			getToken();printToken(t, token);
 			identifier("(");
+			pProcedure->info.nparam++;
+			printf("%d adddress\n", pProcedure);
+			pushTokenToStack(VLOCAL, pProcedure, 0);
+
 			getToken();printToken(t, token);
 		}while(tokenIsComma(token));
 		rparen();
@@ -120,6 +153,7 @@ void inblock(void){
 		do{
 			getToken();printToken(t, token);
 			identifier("var");
+			pushTokenToStack(VLOCAL, pProcedure, 0);
 
 			getToken();printToken(t, token);
 		}while(tokenIsComma(token));
@@ -134,12 +168,20 @@ void inblock(void){
 
 void statement(void){
 	if(tokenIsIdentifier(token)){
+
+		addressStack pSearch = declaredIdentifier();
+
 		getToken();printToken(t, token);
 		if(tokenIsBecomes(token)){
           	getToken();printToken(t, token); t++;
 			expression();
 		}else {
-			paramList();
+			int nparam = paramList();
+			if(nparam > pSearch->info.nparam){
+				error(9, pSearch->info.key);
+			}else if(nparam < pSearch->info.nparam){
+				error(8, pSearch->info.key);
+			}
 		}
 	}else if(tokenIsBegin(token)){
 		do{
@@ -181,6 +223,7 @@ void statement(void){
 			do{
 				getToken();printToken(t, token);
 				identifier("(");
+				declaredIdentifier();
 
 				getToken();printToken(t, token);
 			}while(tokenIsComma(token));
@@ -257,13 +300,15 @@ void term(void){
 }
 
 void factor(void){
-	if (tokenIsLParen(token)) {
+	if(tokenIsIdentifier(token)){
+		declaredIdentifier();
+	}else if (tokenIsLParen(token)) {
 		getToken();printToken(t, token);
 		expression();
 		
 		rparen();
-	} else if(!tokenIsNumber(token) && !tokenIsIdentifier(token)){
-		error(0, "Factor");
+	} else if(!tokenIsNumber(token)){
+		error(0, "Expression");
 	}
 	getToken();printToken(t, token);
 }
@@ -287,6 +332,24 @@ void error(int errId, char * chars){
 		break;
 		case 5 :
 			printf("Error : Operator is expected after Number", chars);
+		break;
+		case 6 :
+			printf("Error : '%s' undeclared", chars);
+		break;
+		case 7 :
+			printf("Error : '%s' already declared", chars);
+		break;
+		case 8 :
+			printf("Error : too few arguments to procedure '%s'", chars);
+		break;
+		case 9 :
+			printf("Error : too much arguments to procedure '%s'", chars);
+		break;
+		case 10 :
+			printf("Error : too few arguments to function '%s'", chars);
+		break;
+		case 11 :
+			printf("Error : too much arguments to function '%s'", chars);
 		break;
 		default :
 			printf("Error : Unindentified");
@@ -431,7 +494,7 @@ void DeAlokasiStack (addressStack P)
 		 }
 } 
 
-void Push (ListStack * L, infotype *X)
+void Push (ListStack * L, infotype * X)
 {
  addressStack P;
  P = AlokasiStack (&(*X));
@@ -478,7 +541,6 @@ void PrintInfoStack (ListStack L)
 					 {
 						 printf("no : %d ; key : %s\n", i, P->info.key);
 						 printf ("type : %d ; address : %d ; nparam : %d\n", P->info.type, P->info.address, P->info.nparam);
-						  printf("\n");
 						 P = P->next;
 						 i++;
 					 }
@@ -498,8 +560,8 @@ addressStack search(ListStack L, char key[]) {
 } 
 
 void PopVarLocal(ListStack *L) {
-	addressStack P= L->TOP;
-	while(P->info.type != PNAME) {
+	addressStack P = L->TOP;
+	while(P->info.type == VLOCAL) {
 		Pop(&(*L));
 		P=P->next;
 	}

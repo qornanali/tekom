@@ -96,3 +96,6 @@ void identifier(char * chars);
 void semicolon(void);
 void end(void);
 void rparen(void);
+addressStack declaredIdentifier(void);
+void pushTokenToStack(char type, int addr, int nparam);
+void popTokenFromStack(void);
