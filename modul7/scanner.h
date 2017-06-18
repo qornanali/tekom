@@ -1,60 +1,33 @@
-/*
-		File name	: scanner.h
-		Vers		: 0.01a
-		Written	by	: Setiadi Rachmat
-		Date		: Fri Aug 28 10:08:03 WIT 2009
-		 Modified by : Mochamad Sohibul Iman - 151511016 - 2A-D3 Teknik Informatika
-        Date : Sunday, March 19, 2017 WIB
-*/
-
 typedef struct _token{
-	char attr;				/* attribute type */
-	char charvalue[30];		/* string */
-	int value;				/* string value */
+	char attr;				
+	char charvalue[30];		
+	int value;			
 } token_t;
 
-/* token type */
+//tools
+#define TRUE 1
+#define FALSE 0
+#define RWORDS_SIZE 15
+#define SYMBOLS_SIZE 19
+#define stringIsEqual(A, B) (strcmp((A), (B)) == 0)
+#define stringIsContain(A, B) (strstr((A), (B)) != NULL)
+#define charIsAlphabet(X) (((X) >= 'a' && (X) <= 'z') || ((X) >= 'A' && (X) <= 'Z'))
+#define charIsNumber(X)  ((X) >= '0' && (X) <= '9')
+#define charIsWhiteSpace(X) ((X) == ' ' || (X) == '\n' || (X) == '\t')
+#define charIsSymbol(X) (!charIsNumber((X)) && !charIsAlphabet((X)) && !charIsWhiteSpace((X)))
+#define charIsEOF(X) ((X) == EOF)
+#define setCharNull(X) (X) = '\0'
+#define setVarNull(X) (X) = NULL
+#define setStringNull(X, n) memset(X,'\0', n)
+#define stringIsSymbol(X) ((X) < SYMBOLS_SIZE && (X) >= 0)
+#define stringIsRword(X) ((X) < RWORDS_SIZE && (X) >= 0)
+#define copyString(A, B) strcpy(A, B)
+#define varIsNull(X) ((X) == '\0' || (X) == NULL)
+#define stringIsEmpty(X) (strlen(X) == 0)
+#define moveFileCursor(F, X) fseek(F, X, SEEK_CUR)
+#define printToken(I, X) printf("token#%d %3d %3d %s \n", I, X.attr, X.value, X.charvalue)
 
-#define IDENTIFIER 	1
-#define NUMBER 		2
-#define RWORD 		3
-#define SYMBOL 		4
-
-/* RESERVED WORD DEFINITION */
-#define BEGIN		0
-#define DIV			1	
-#define DO			2
-#define ELSE		3
-#define END			4
-#define IF			5
-#define PROCEDURE	6
-#define PROGRAM		7
-#define THEN		8
-#define	VAR			9
-#define	WHILE		10
-#define READ		11
-#define WRITE		12
-#define FORWARD		13
-#define FUNCTION	14
-
-/* symbol definition */
-
-#define PLUS		0
-#define MINUS		1	/* - */
-#define TIMES		2	/* * */
-#define LPAREN		3	/* ( */
-#define RPAREN		4	/* ) */
-#define EQL			5	/* = */
-#define COMMA		6	/* , */
-#define PERIOD		7	/* . */
-#define SEMICOLON	8 	/* ; */
-#define BECOMES		9	/* := */
-#define	LESSTHAN	10  /* < */
-#define LESSEQL		11	/* <= */ 
-#define	NOTEQL		12	/* <> */
-#define	GRTRTHAN	13	/* > */
-#define GRTREQL		14	/* >= */
-#define LBRACE		15	/* [  */
-#define RBRACE		16	/* [  */
-#define INTERVAL	17	/* .. */
-#define COLON		18	/* : */
+int getToken(void);
+int checkRWord(char * chars);
+int checkSymbol(char * chars);
+void clearToken(void);

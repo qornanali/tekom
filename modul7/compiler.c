@@ -3,10 +3,14 @@
 #include <ctype.h> 
 #include <string.h> 
 #include <conio.h>
+#include <limits.h>
+#include <malloc.h>
+#include <stdbool.h>
 #include "scanner.h"
 #include "compiler.h" 
+#include "stack.h"
 
-/* Global variable */
+/* MAIN */
 token_t token;
 FILE * infile;
 int t = 0, c = 0, rwordValue;
@@ -16,6 +20,8 @@ int main(int argc, char *argv[]){
     program();
     printf("Success : Compilation completed with no error(s)\n");
 }
+
+/* COMPILER */
 
 void program(void){
 	getToken();printToken(t, token);
@@ -284,6 +290,8 @@ void error(int errId, char * chars){
     exit(-1);
 }
 
+/* SCANNER */
+
 void initToken(char * name){
 	if((infile = fopen(name, "r")) == NULL){
 		error(4, name);
@@ -384,5 +392,109 @@ int getToken(void){
 		c--;
 		t++;
 		return c1;
+	}
+}
+
+/* STACK */
+
+void CreateListStack (ListStack *L)
+{
+  L->TOP= Nil;
+}
+
+addressStack AlokasiStack (infotype *X)
+{
+ addressStack P = (addressStack)malloc(sizeof(ElmtListStack));
+			 if (P != Nil) 
+			 {
+					 strcpy(P->info.key,X->key);
+					 P->info.type = X->type;
+					 P->info.address = X->address;
+					 P->info.nparam = X->nparam;
+					 P->next = Nil;
+			 }
+			 
+ return (P);
+}
+
+void DeAlokasiStack (addressStack P)
+{
+		 if (P != Nil)
+		 {
+		 	free (P);
+		 }
+} 
+
+void Push (ListStack * L, infotype *X)
+{
+ addressStack P;
+ P = AlokasiStack (&(*X));
+ 
+ 	if (P != Nil)
+ 	{ 			
+	 		InsertTOP (&(*L), P); 
+ 	}
+}
+
+void InsertTOP (ListStack * L, addressStack P)
+{
+ P->next= L->TOP;
+ L->TOP = P;
+}
+
+void Pop (ListStack *L)
+{
+ addressStack P;
+ P = L->TOP;
+ L->TOP= L->TOP->next;
+ DeAlokasiStack (P);
+} 
+
+void PrintInfoStack (ListStack L)
+{
+ addressStack P;
+ if (L.TOP == Nil)
+ {
+ 		printf ("ListStack Kosong .... \a\n");
+ }
+  else 
+	 {
+	 		P = L.TOP;
+			for (;;)
+	 		{
+				 if (P == Nil)
+				 {
+					 printf("\n");
+					 break;
+				 }
+				 else 
+					 {
+						 printf ("KEY : %s\n", P->info.key);
+						 printf ("TYPE : %d\n", P->info.type);
+						  printf ("Address : %d\n", P->info.address); 
+						  printf ("NPARAM : %d\n", P->info.nparam);
+						  printf("\n");
+						 P = P->next;
+					 }
+			}
+	 }
+}
+
+addressStack search(ListStack L, char key[]) {
+	addressStack P=L.TOP;
+	while(P != NULL) {
+		if(strcmp(P->info.key, key)==0) {
+			return P;
+		}
+		P=P->next;
+	}
+	return NULL;
+} 
+
+void PopVarLocal(ListStack *L) {
+	addressStack P= L->TOP;
+	while(P->info.type != PNAME) {
+		Pop(&(*L));
+		P=P->next;
 	}
 }
