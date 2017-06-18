@@ -61,6 +61,7 @@
 #define tokenIsThen(X) (tokenIsRword(X) && token.value == THEN) 
 #define tokenIsElse(X) (tokenIsRword(X) && token.value == ELSE) 
 #define tokenIsProcedure(X) (tokenIsRword(X) && token.value == PROCEDURE) 
+#define tokenIsFunction(X) (tokenIsRword(X) && token.value == FUNCTION) 
 #define tokenIsRead(X) (tokenIsRword(X) && token.value == READ) 
 #define tokenIsWrite(X) (tokenIsRword(X) && token.value == WRITE) 
 #define tokenIsSemicolon(X) (tokenIsSymbol(X) && X.value == SEMICOLON)
@@ -96,7 +97,5 @@ void identifier(char * chars);
 void semicolon(void);
 void end(void);
 void rparen(void);
-addressStack declaredIdentifier(void);
-void unDeclaredIdentifier(void);
 void pushTokenToStack(char type, int addr, int nparam);
 void popTokenFromStack(void);

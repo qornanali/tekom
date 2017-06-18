@@ -1,0 +1,11 @@
+program example83;
+var n;
+
+function fact(m);
+    if m <= 0 then fact := 1
+    else fact := fact(m-1) * m;
+
+begin
+    read(n);
+    write(fact(n))
+end.

@@ -90,21 +90,6 @@ void rparen(void){
 	}
 }
 
-addressStack declaredIdentifier(void){
-	addressStack pSearch = search(stack, token.charvalue);
-	if(varIsNull(pSearch)){
-		error(6, token.charvalue);
-	}
-	return pSearch;
-}
-
-void unDeclaredIdentifier(void){
-	addressStack pSearch = search(stack, token.charvalue);
-	if(!varIsNull(pSearch)){
-		error(7, token.charvalue);
-	}
-}
-
 
 void outblock(void){
 	if(!tokenIsVar(token)){
@@ -113,7 +98,10 @@ void outblock(void){
 	do{
 		getToken();printToken(t, token);
 		identifier("var");
-		unDeclaredIdentifier();
+		addressStack pSearch = search(stack, token.charvalue);
+		if(!varIsNull(pSearch)){
+			error(7, token.charvalue);
+		}
 		pushTokenToStack(VGLOBAL, 0, 0);
 		getToken();printToken(t, token);
 	}while(tokenIsComma(token));
@@ -121,11 +109,24 @@ void outblock(void){
 	semicolon();
 	
 	getToken();printToken(t, token);
-	while(tokenIsProcedure(token)){
+	while(tokenIsProcedure(token) || tokenIsFunction(token)){
 		getToken();printToken(t, token);
-		identifier("procedure");
-		unDeclaredIdentifier();
-		pushTokenToStack(PNAME, 0, 0);
+		int type;
+		char key[10];
+		if(tokenIsProcedure(token)){
+			copyString(key, "procedure");
+			type = PNAME;
+		}else{
+			copyString(key, "function");
+			type = FNAME;
+		}
+		identifier(key);
+		addressStack pSearch = search(stack, token.charvalue);
+		if(!varIsNull(pSearch)){
+			error(7, token.charvalue);
+		}
+		pushTokenToStack(type, 0, 0);
+		setStringNull(key, 10);
 
 		getToken();printToken(t, token);
 		inblock();
@@ -140,14 +141,17 @@ void outblock(void){
 }
 
 void inblock(void){
-	addressStack pProcedure = stack.TOP;
+	addressStack pMethod = stack.TOP;
 	if(tokenIsLParen(token)){
 		do{
 			getToken();printToken(t, token);
 			identifier("(");
-			pProcedure->info.nparam++;
-			unDeclaredIdentifier();
-			pushTokenToStack(VLOCAL, pProcedure, 0);
+			pMethod->info.nparam++;
+			addressStack pSearch = search(stack, token.charvalue);
+			if(!varIsNull(pSearch)){
+				error(7, token.charvalue);
+			}
+			pushTokenToStack(VLOCAL, pMethod, 0);
 
 			getToken();printToken(t, token);
 		}while(tokenIsComma(token));
@@ -163,8 +167,11 @@ void inblock(void){
 		do{
 			getToken();printToken(t, token);
 			identifier("var");
-			unDeclaredIdentifier();
-			pushTokenToStack(VLOCAL, pProcedure, 0);
+			addressStack pSearch = search(stack, token.charvalue);
+			if(!varIsNull(pSearch)){
+				error(7, token.charvalue);
+			}
+			pushTokenToStack(VLOCAL, pMethod, 0);
 
 			getToken();printToken(t, token);
 		}while(tokenIsComma(token));
@@ -180,7 +187,10 @@ void inblock(void){
 void statement(void){
 	if(tokenIsIdentifier(token)){
 
-		addressStack pSearch = declaredIdentifier();
+		addressStack pSearch = search(stack, token.charvalue);
+		if(varIsNull(pSearch)){
+			error(6, token.charvalue);
+		}
 
 		getToken();printToken(t, token);
 		if(tokenIsBecomes(token)){
@@ -189,9 +199,17 @@ void statement(void){
 		}else {
 			int nparam = paramList();
 			if(nparam > pSearch->info.nparam){
-				error(9, pSearch->info.key);
+				if(pSearch->info.type == PNAME){
+					error(9, pSearch->info.key);
+				}else{
+					error(10, pSearch->info.key);
+				}
 			}else if(nparam < pSearch->info.nparam){
-				error(8, pSearch->info.key);
+				if(pSearch->info.type == PNAME){
+					error(8, pSearch->info.key);
+				}else{
+					error(11, pSearch->info.key);
+				}
 			}
 		}
 	}else if(tokenIsBegin(token)){
@@ -234,7 +252,17 @@ void statement(void){
 			do{
 				getToken();printToken(t, token);
 				identifier("(");
-				declaredIdentifier();
+				addressStack pSearch = search(stack, token.charvalue);
+				if(varIsNull(pSearch)){
+					error(6, token.charvalue);
+				}
+				if(pSearch->info.type != VLOCAL && pSearch->info.type != VGLOBAL){
+					if(pSearch->info.type == PNAME){
+						error(12, "variabel");
+					}else{
+						error(13, "variabel");
+					}
+				}
 
 				getToken();printToken(t, token);
 			}while(tokenIsComma(token));
@@ -312,7 +340,10 @@ void term(void){
 
 void factor(void){
 	if(tokenIsIdentifier(token)){
-		declaredIdentifier();
+		addressStack pSearch = search(stack, token.charvalue);
+		if(varIsNull(pSearch)){
+			error(6, token.charvalue);
+		}	
 	}else if (tokenIsLParen(token)) {
 		getToken();printToken(t, token);
 		expression();
@@ -361,6 +392,15 @@ void error(int errId, char * chars){
 		break;
 		case 11 :
 			printf("Error : too much arguments to function '%s'", chars);
+		break;
+		case 12 :
+			printf("Error : expected %s found procedure", chars);
+		break;
+		case 13 :
+			printf("Error : expected %s found function", chars);
+		break;
+		case 14 :
+			printf("Error : expected %s found variabel", chars);
 		break;
 		default :
 			printf("Error : Unindentified");

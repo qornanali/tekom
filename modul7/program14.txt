@@ -1,11 +1,11 @@
 program example73;
 var n, temp;
 
-procedure fact(n);
+procedure fact(m);
 begin
-    if n <= 1 then temp := 1
+    if m <= 1 then temp := 1
     else begin
-            fact(n-1);
+            fact(m-1);
             temp := temp * n
         end
 end;
