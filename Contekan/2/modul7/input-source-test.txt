@@ -1,9 +1,0 @@
-program example52;
-var n,x;
-procedure prime;
-var m;
-begin
- m:=x div 2;
- while x <> (x div m) *m do m:=m-1;
- if m=1 then write(x)
-end.

@@ -1,4 +1,0 @@
-Program example43;
-Begin
-   -(1+(-2))
- End.

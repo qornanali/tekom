@@ -1,8 +1,0 @@
-Program example33;
-Begin
-  Begin
-     200 + 10;
-     30 - 8
-  End;
- 16 * 67
- End.
