@@ -1,3 +1,10 @@
+/*
+File name 	: compiler.c
+Vers		: 0.01a
+Written by	: Ali Qornan Jaisyurrahman
+Date		: Fri May 19 2017
+*/
+
 #include <stdio.h> 
 #include <stdlib.h> 
 #include <ctype.h> 

@@ -1,3 +1,10 @@
+/*
+File name 	: scanner.h
+Vers		: 0.01a
+Written by	: Ali Qornan Jaisyurrahman
+Date		: Fri Jun 15 2017
+*/
+
 typedef struct _token{
 	char attr;				
 	char charvalue[30];		

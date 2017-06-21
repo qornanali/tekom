@@ -1,3 +1,10 @@
+/*
+File name 	: compiler.h
+Vers		: 0.01a
+Written by	: Ali Qornan Jaisyurrahman
+Date		: Fri Jun 15 2017
+*/
+
 /* token type */
 
 #define ALPHABET 	0

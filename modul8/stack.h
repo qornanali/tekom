@@ -1,3 +1,10 @@
+/*
+File name 	: stack.h
+Vers		: 0.01a
+Written by	: Ali Qornan Jaisyurrahman
+Date		: Fri Jun 15 2017
+*/
+
 #ifndef stack_H
 #define	stack_H
 #define Nil NULL

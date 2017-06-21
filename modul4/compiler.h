@@ -1,3 +1,10 @@
+/*
+File name 	: compiler.h
+Vers		: 0.01a
+Written by	: Ali Qornan Jaisyurrahman
+Date		: Fri May 19 2017
+*/
+
 typedef struct _token{
 	char attr;				
 	char charvalue[30];		

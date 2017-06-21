@@ -1,10 +1,7 @@
 /*
 File name 	: scanner.c
 Vers		: 0.01a
-Written by	: Setiadi Rachmat
-Date		: Fri Aug 28 2019
-
-Modified by : Ali Qornan Jaisyurrahman
+Written by	: Ali Qornan Jaisyurrahman
 Date		: Fri May 19 2017
 */
 
