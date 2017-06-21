@@ -1,2 +1,0 @@
-program example31;
-526 * 321.
